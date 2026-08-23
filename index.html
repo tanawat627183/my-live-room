@@ -154,7 +154,7 @@
         <div class="container">
             <div class="hero-text">
                 <h1>แพลตฟอร์มไลฟ์สดอิสระ</h1>
-                <p>ดูคือดูเลย คลิกเดียวเข้าชมหรือเปิดไลฟ์ได้ทันที ไม่มีหน้าจอเตือนกวนใจ</p>
+                <p>สร้างห้องปุ๊บ ชื่อห้องเด้งขึ้นลิสต์ให้คนอื่นกดดูได้ทันที</p>
             </div>
 
             <div class="grid">
@@ -164,7 +164,7 @@
                         <h2>🔴 เปิดห้องไลฟ์ใหม่</h2>
                         <div class="input-group">
                             <label>ตั้งชื่อห้องของคุณ</label>
-                            <input type="text" id="myRoomName" placeholder="เช่น dear-live, sale1">
+                            <input type="text" id="myRoomName" placeholder="เช่น ขายปลา, ห้องของฉัน">
                         </div>
                     </div>
                     <button onclick="startMyLive()" class="btn btn-live">เปิดห้องไลฟ์ทันที</button>
@@ -175,65 +175,88 @@
                     <div>
                         <h2>👀 ข้อมูลสำหรับผู้ชม</h2>
                         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
-                            เลือกห้องด้านล่างเพื่อคลิกดูได้ทันที ไม่ต้องใส่รหัส ไม่ต้องล็อกอิน
+                            เลือกห้องจากรายการด้านล่างเพื่อคลิกดูได้ทันที ไม่ต้องใส่รหัส
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- รายการห้องให้เลือกคลิกดูทันที (ใช้ระบบ Stream แบบดูได้ทันที) -->
+            <!-- รายการห้องที่จะแสดงผลแบบอัปเดตอัตโนมัติ -->
             <div class="room-list-box">
-                <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:15px;">📺 เลือกห้องที่ต้องการเข้าชม</h2>
-                
-                <div class="room-list">
-                    <div class="room-item">
-                        <div class="room-info">
-                            <h4>ห้องหลัก: ทั่วไป (General)</h4>
-                            <span>● พร้อมดูทันที</span>
-                        </div>
-                        <button onclick="watchRoom('General')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูเลย</button>
-                    </div>
-
-                    <div class="room-item">
-                        <div class="room-info">
-                            <h4>ห้องที่ 2: ตลาดนัด (Market)</h4>
-                            <span>● พร้อมดูทันที</span>
-                        </div>
-                        <button onclick="watchRoom('Market')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูเลย</button>
-                    </div>
-
-                    <div class="room-item">
-                        <div class="room-info">
-                            <h4>ห้องที่ 3: ปาร์ตี้ (Party)</h4>
-                            <span>● พร้อมดูทันที</span>
-                        </div>
-                        <button onclick="watchRoom('Party')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูเลย</button>
-                    </div>
+                <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:15px;">📺 รายการห้องที่เปิดไลฟ์อยู่</h2>
+                <div class="room-list" id="roomContainer">
+                    <!-- รายการห้องจะถูกเติมอัตโนมัติจากโค้ดด้านล่าง -->
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>© 2026 DEAR LIVE PLATFORM • ดูคือดูเลย ไม่มีหน้าต่างเตือนกวนใจ</p>
+            <p>© 2026 DEAR LIVE PLATFORM • ใช้งานง่าย ดูคือดูเลย</p>
         </footer>
     </div>
 
     <script>
+        // โหลดรายการห้องเริ่มต้น
+        let defaultRooms = [
+            { name: "General", label: "ห้องหลัก: ทั่วไป (General)" },
+            { name: "Market", label: "ห้องที่ 2: ตลาดนัด (Market)" },
+            { name: "Party", label: "ห้องที่ 3: ปาร์ตี้ (Party)" }
+        ];
+
+        function getRooms() {
+            let saved = localStorage.getItem('dear_live_rooms');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return defaultRooms;
+        }
+
+        function renderRooms() {
+            let rooms = getRooms();
+            let container = document.getElementById('roomContainer');
+            container.innerHTML = "";
+
+            rooms.forEach(r => {
+                let html = `
+                    <div class="room-item">
+                        <div class="room-info">
+                            <h4>${r.label}</h4>
+                            <span>● พร้อมดูทันที</span>
+                        </div>
+                        <button onclick="watchRoom('${r.name}')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูเลย</button>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
         function startMyLive() {
             let room = document.getElementById('myRoomName').value.trim();
             if(!room) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
             let cleanRoom = room.replace(/\s+/g, '-');
             
-            // เปลี่ยนมาใช้ระบบวิดีโอสตรีมมิ่งอิสระ ตัดปัญหาหน้าต่างประชุมทิ้งทั้งหมด
+            // บันทึกห้องใหม่ลงในความจำ เพื่อให้ชื่อห้องเด้งขึ้นลิสต์
+            let rooms = getRooms();
+            // เช็คว่ามีห้องชื่อนี้ยัง ถ้ายังไม่มีให้เพิ่มเข้าไป
+            if(!rooms.some(r => r.name === cleanRoom)) {
+                rooms.unshift({ name: cleanRoom, label: "ห้อง: " + room });
+                localStorage.setItem('dear_live_rooms', JSON.stringify(rooms));
+            }
+
+            renderRooms();
+
+            // เปิดหน้าจอไลฟ์ทันที
             let url = `https://vdo.ninja/?push=${cleanRoom}&quality=0`;
             window.open(url, '_blank');
         }
 
         function watchRoom(roomName) {
-            // พาผู้ชมเข้าสู่หน้าจอรับชมวิดีโอสตรีมทันทีแบบไม่มีข้อความเตือน
             let url = `https://vdo.ninja/?view=${roomName}`;
             window.open(url, '_blank');
         }
+
+        // โหลดแสดงผลตอนเปิดเว็บครั้งแรก
+        renderRooms();
     </script>
 
 </body>
