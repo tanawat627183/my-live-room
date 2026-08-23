@@ -119,6 +119,7 @@
         .btn-share { background-color: var(--accent-green); color: white; margin-top: 10px; display: none; }
         .btn-copy { background-color: var(--accent-blue); color: white; margin-top: 10px; display: none; }
         .btn-end { background-color: #374151; color: #f87171; margin-top: 10px; display: none; }
+        .btn-refresh { background-color: #1f2937; color: var(--text-muted); border: 1px solid #374151; font-size: 13px; padding: 8px; margin-bottom: 15px; }
 
         .share-box {
             background: #1f2937;
@@ -219,7 +220,10 @@
 
             <!-- รายการห้องที่ซิงค์ทุกเครื่อง -->
             <div class="room-list-box">
-                <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:15px;">📺 รายการห้องที่กำลังไลฟ์สด</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="margin:0; font-size:18px; color:#fff;">📺 รายการห้องที่กำลังไลฟ์สด</h2>
+                    <button onclick="fetchRooms()" class="btn btn-refresh" style="width: auto;">🔄 รีเฟรชรายชื่อ</button>
+                </div>
                 <div class="room-list" id="roomContainer">
                     <div class="empty-text">กำลังโหลดข้อมูลห้อง...</div>
                 </div>
@@ -232,7 +236,6 @@
     </div>
 
     <script>
-        // เชื่อมต่อ Supabase ด้วย URL และ Publishable Key
         const SUPABASE_URL = 'https://nwtjuwunuqpkcfbvyxzf.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_L3Bp6Hz7crnHTvcOF1ywOA_mZQ-I3Ne';
         
@@ -298,14 +301,13 @@
 
             document.getElementById('roomShareLink').value = viewerPageUrl;
             document.getElementById('shareSection').style.display = "block";
-            // แสดงปุ่มปิดห้อง
             document.querySelector('.btn-end').style.display = "block";
 
             let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&quality=0`;
             window.open(pushUrl, '_blank');
         }
 
-        // ปิดห้องและลบออกจาก Supabase ทันที พร้อมรีเซ็ตหน้าจอ
+        // ปิดห้องและลบออกจาก Supabase ทันที
         async function endMyLive() {
             if(!activeRoomId) return;
 
@@ -323,7 +325,7 @@
             document.getElementById('shareSection').style.display = "none";
             document.getElementById('myRoomName').value = "";
             activeRoomId = "";
-            alert("ปิดห้องและลบออกจากรายการทุกเครื่องเรียบร้อยแล้วครับ!");
+            alert("ปิดห้องและลบออกจากรายการเรียบร้อยแล้วครับ!");
         }
 
         function copyLink() {
@@ -345,7 +347,7 @@
             }
         }
 
-        // ฟังก์ชันตรวจสอบห้องก่อนให้ผู้ชมเข้าดู (ถ้าห้องถูกปิดไปแล้ว จะแจ้งเตือนทันทีไม่ให้กดเข้าเก้อ)
+        // ฝั่งคนดูคลิกเข้าชมห้อง (ล็อกสิทธิ์เป็นผู้ชม บังคับไม่ให้เปิดกล้อง)
         async function watchRoom(roomName) {
             let name = document.getElementById('viewerNickName').value.trim();
             if(!name) {
@@ -354,7 +356,7 @@
                 return;
             }
 
-            // เช็กในฐานข้อมูลว่าห้องนี้ยังอยู่จริงไหม
+            // เช็กฐานข้อมูลว่าห้องยังอยู่ไหม
             let { data } = await supabaseClient
                 .from('live_rooms')
                 .select('*')
@@ -363,15 +365,16 @@
 
             if (!data) {
                 alert("ห้องนี้ได้ปิดการไลฟ์ไปแล้วครับ!");
-                fetchRooms(); // อัปเดตรายชื่อห้องให้หายไปทันที
+                fetchRooms();
                 return;
             }
 
-            let url = `https://vdo.ninja/?room=${roomName}&chatbutton&label&displayName=${encodeURIComponent(name)}`;
+            // ใช้พารามิเตอร์บังคับให้เป็นโหมดผู้ชม (viewer & novideo สำหรับคนดู เพื่อไม่ให้เด้งเปิดกล้อง)
+            let url = `https://vdo.ninja/?room=${roomName}&view&chatbutton&label&displayName=${encodeURIComponent(name)}`;
             window.open(url, '_blank');
         }
 
-        // โหลดข้อมูลและเช็กลิงก์แชร์ตรงตอนเข้าเว็บ พร้อมซิงค์ข้อมูลอัตโนมัติทุก 3 วินาที
+        // โหลดข้อมูลอัตโนมัติ
         window.onload = function() {
             fetchRooms();
             setInterval(fetchRooms, 3000);
@@ -379,7 +382,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             const targetRoom = urlParams.get('room');
             if (targetRoom) {
-                // เช็กก่อนว่าลิงก์ที่กดเข้ามา ห้องยังเปิดอยู่ไหม
                 supabaseClient.from('live_rooms').select('*').eq('name', targetRoom).single().then(({data}) => {
                     if (!data) {
                         alert("ขออภัย! ห้องไลฟ์นี้ได้ปิดตัวลงแล้วครับ");
@@ -390,7 +392,7 @@
                     let viewerName = prompt("กรอกชื่อเล่นของคุณ (สำหรับแสดงในแชท):");
                     if (!viewerName) viewerName = "ผู้ชมทั่วไป";
 
-                    let watchUrl = `https://vdo.ninja/?room=${targetRoom}&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
+                    let watchUrl = `https://vdo.ninja/?room=${targetRoom}&view&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
                     window.location.href = watchUrl;
                 });
             }
