@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEAR LIVE - แพลตฟอร์มไลฟ์สดส่วนตัว</title>
+    <title>DEAR LIVE - ศูนย์รวมห้องไลฟ์สด</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -25,7 +25,7 @@
         }
         /* Navbar */
         nav {
-            background: rgba(17, 24, 39, 0.8);
+            background: rgba(17, 24, 39, 0.9);
             backdrop-filter: blur(10px);
             padding: 15px 30px;
             display: flex;
@@ -41,55 +41,43 @@
         }
         .logo span { color: var(--accent-red); }
 
-        /* Hero Section */
+        /* Container */
         .container {
-            max-width: 1100px;
-            margin: 40px auto;
+            max-width: 1000px;
+            margin: 30px auto;
             padding: 0 20px;
             flex: 1;
             width: 100%;
             box-sizing: border-box;
         }
+        
         .hero-text {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
-        .hero-text h1 { font-size: 32px; margin-bottom: 10px; font-weight: 700; }
-        .hero-text p { color: var(--text-muted); font-size: 16px; margin: 0; }
+        .hero-text h1 { font-size: 28px; margin-bottom: 8px; font-weight: 700; }
+        .hero-text p { color: var(--text-muted); font-size: 15px; margin: 0; }
 
-        /* Cards Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-        }
+        /* Card Section */
         .card {
             background: var(--card-bg);
             border: 1px solid #1f2937;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s, border-color 0.2s;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
         }
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: #374151;
-        }
-        .card h2 { font-size: 22px; margin-top: 0; display: flex; align-items: center; gap: 10px; }
-        .card p { color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
+        .card h2 { font-size: 18px; margin-top: 0; color: #fff; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
-        /* Form Inputs */
+        /* Inputs */
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .input-group label {
             display: block;
             font-size: 13px;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 500;
         }
         .input-group input {
@@ -102,11 +90,8 @@
             font-size: 15px;
             box-sizing: border-box;
             outline: none;
-            transition: border-color 0.2s;
         }
-        .input-group input:focus {
-            border-color: var(--accent-blue);
-        }
+        .input-group input:focus { border-color: var(--accent-blue); }
 
         /* Buttons */
         .btn {
@@ -118,95 +103,191 @@
             font-weight: 600;
             cursor: pointer;
             text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            box-sizing: border-box;
             transition: opacity 0.2s;
         }
         .btn:hover { opacity: 0.9; }
         .btn-live { background-color: var(--accent-red); color: white; }
         .btn-watch { background-color: var(--accent-blue); color: white; }
 
-        /* Footer */
+        /* Active Rooms List */
+        .room-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .room-item {
+            background: #1f2937;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #374151;
+        }
+        .room-info h4 { margin: 0 0 5px 0; font-size: 16px; color: #fff; }
+        .room-info span { font-size: 12px; color: var(--accent-red); font-weight: bold; }
+        .btn-join-small {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Live Room View (Hidden by default, shown when streaming/watching) */
+        #liveView {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0b0f19;
+            z-index: 100;
+            flex-direction: column;
+        }
+        .live-header {
+            background: #111827;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1f2937;
+        }
+        .btn-back {
+            background: #374151;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .iframe-container {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+        }
+        iframe { width: 100%; height: 100%; border: none; }
+
         footer {
             text-align: center;
             padding: 20px;
             color: #4b5563;
             font-size: 13px;
             border-top: 1px solid #1f2937;
+            margin-top: auto;
         }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="logo">DEAR<span>LIVE</span></div>
-    </nav>
+    <!-- หน้าแรก: ศูนย์รวมห้องไลฟ์ -->
+    <div id="homeView" style="display: flex; flex-direction: column; min-height: 100vh;">
+        <nav>
+            <div class="logo">DEAR<span>LIVE</span></div>
+        </nav>
 
-    <div class="container">
-        <div class="hero-text">
-            <h1>ระบบไลฟ์สดส่วนตัวของคุณเดียร์</h1>
-            <p>อิสระ คมชัด ไม่โดนแบน ปลอดภัย 100%</p>
-        </div>
+        <div class="container">
+            <div class="hero-text">
+                <h1>ศูนย์รวมห้องไลฟ์สดส่วนตัว</h1>
+                <p>สร้างห้องไลฟ์ของคุณเอง หรือเลือกห้องเพื่อเข้าชมได้ทันทีโดยไม่ต้องล็อกอิน</p>
+            </div>
 
-        <div class="grid">
-            <!-- ฝั่งเจ้าของห้อง (เริ่มไลฟ์) -->
+            <!-- โซนสร้างห้องไลฟ์ของคุณเอง -->
             <div class="card" style="border-top: 4px solid var(--accent-red);">
-                <div>
-                    <h2>🔴 เปิดห้องไลฟ์สด</h2>
-                    <p>สำหรับคุณเดียร์ (เจ้าของห้อง) กรอกชื่อของคุณแล้วกดปุ่มเพื่อเริ่มออกอากาศทันที</p>
-                    
-                    <div class="input-group">
-                        <label>ชื่อผู้จัดไลฟ์</label>
-                        <input type="text" id="hostName" value="คุณเดียร์" placeholder="ใส่ชื่อของคุณ">
-                    </div>
+                <h2>🔴 เปิดห้องไลฟ์ของคุณเอง</h2>
+                <div class="input-group">
+                    <label>ตั้งชื่อห้องไลฟ์ของคุณ (เช่น ห้องคุณเดียร์, ขายเสื้อผ้า)</label>
+                    <input type="text" id="createRoomName" placeholder="ใส่ชื่อห้องเป็นภาษาอังกฤษหรือตัวเลข เช่น dear-shop">
                 </div>
-                <button onclick="startLive()" class="btn btn-live">เริ่มไลฟ์สดทันที</button>
+                <div class="input-group">
+                    <label>ชื่อผู้จัด (ชื่อของคุณ)</label>
+                    <input type="text" id="createHostName" value="คุณเดียร์" placeholder="ชื่อที่จะแสดงในไลฟ์">
+                </div>
+                <button onclick="startMyLive()" class="btn btn-live">เริ่มไลฟ์สดทันที</button>
             </div>
 
-            <!-- ฝั่งผู้ชม (เข้าชม) -->
+            <!-- โซนห้องยอดฮิต / ห้องหลักของคุณเดียร์ -->
             <div class="card" style="border-top: 4px solid var(--accent-blue);">
-                <div>
-                    <h2>👀 เข้าชมไลฟ์สด</h2>
-                    <p>สำหรับผู้ชม ใส่ชื่อเล่นของคุณแล้วกดเข้ามาดูและพิมพ์พูดคุยในไลฟ์ได้เลย</p>
-                    
-                    <div class="input-group">
-                        <label>ชื่อเล่นของคุณ (สำหรับแสดงในแชท)</label>
-                        <input type="text" id="viewerName" placeholder="เช่น น้องฟ้า, คุณเอ">
+                <h2>👀 ห้องไลฟ์ที่กำลังออนแอร์</h2>
+                
+                <div class="input-group">
+                    <label>ชื่อเล่นของคุณ (สำหรับเข้าชมและพิมพ์แชท)</label>
+                    <input type="text" id="viewerName" placeholder="เช่น น้องฟ้า, ลูกค้าทั่วไป">
+                </div>
+
+                <div class="room-list">
+                    <div class="room-item">
+                        <div class="room-info">
+                            <h4 id="mainRoomTitle">🔴 ห้องหลัก: คุณเดียร์ (KhunDearLiveRoom2026)</h4>
+                            <span>● กำลังออนแอร์</span>
+                        </div>
+                        <button onclick="joinRoom('KhunDearLiveRoom2026')" class="btn-join-small">เข้าชม</button>
                     </div>
                 </div>
-                <button onclick="joinWatch()" class="btn btn-watch">เข้าชมไลฟ์</button>
             </div>
         </div>
+
+        <footer>
+            <p>© 2026 DEAR LIVE PLATFORM • อิสระ ปลอดภัย ไม่โดนแบน</p>
+        </footer>
     </div>
 
-    <footer>
-        <p>© 2026 DEAR LIVE PLATFORM • สร้างและควบคุมได้เอง 100%</p>
-    </footer>
+    <!-- หน้าจอห้องไลฟ์ (แสดงผลเต็มจอเมื่อกดเข้ามา) -->
+    <div id="liveView">
+        <div class="live-header">
+            <button onclick="leaveRoom()" class="btn-back">← ออกจากห้องไลฟ์</button>
+            <span id="currentRoomDisplay" style="font-weight: bold; color: #f3f4f6;">กำลังไลฟ์สด</span>
+            <div style="width: 80px;"></div>
+        </div>
+        <div class="iframe-container" id="iframeBox"></div>
+    </div>
 
     <script>
-        // ชื่อห้องหลักของคุณเดียร์
-        const roomName = "KhunDearLiveRoom2026";
-
-        function startLive() {
-            let name = document.getElementById('hostName').value.trim();
-            if(!name) name = "คุณเดียร์";
+        function startMyLive() {
+            let room = document.getElementById('createRoomName').value.trim();
+            let host = document.getElementById('createHostName').value.trim();
             
-            // ลิงก์เข้าห้องแบบเปิดกล้อง/ไมค์ สำหรับ Host พร้อมส่งชื่อเข้าไป
-            let url = `https://meet.jit.si/${roomName}#userInfo.displayName="${encodeURIComponent(name)}"&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.DEFAULT_LANGUAGE=th`;
-            window.location.href = url;
-        }
-
-        function joinWatch() {
-            let name = document.getElementById('viewerName').value.trim();
-            if(!name) {
-                alert("กรุณากรอกชื่อเล่นก่อนเข้าชมครับ");
+            if(!room) {
+                alert("กรุณาตั้งชื่อห้องก่อนครับ");
                 return;
             }
+            // แปลงชื่อห้องให้ไม่มีเว้นวรรค
+            room = room.replace(/\s+/g, '-');
+            if(!host) host = "สตรีมเมอร์";
+
+            // ลิงก์สำหรับเจ้าห้อง (เปิดกล้อง/ไมค์)
+            let jitsiUrl = `https://meet.jit.si/${room}#userInfo.displayName="${encodeURIComponent(host)}"&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.DEFAULT_LANGUAGE=th&interfaceConfig.TOOLBAR_BUTTONS=['microphone','camera','chat','desktop','raisehand','tileview','fullscreen']`;
             
-            // ลิงก์เข้าห้องแบบปิดกล้องอัตโนมัติ สำหรับ Viewer พร้อมส่งชื่อเข้าแชท
-            let url = `https://meet.jit.si/${roomName}#userInfo.displayName="${encodeURIComponent(name)}"&config.startWithAudioMuted=true&config.startWithVideoMuted=true&interfaceConfig.DEFAULT_LANGUAGE=th`;
-            window.location.href = url;
+            openLiveScreen(room, jitsiUrl);
+        }
+
+        function joinRoom(room) {
+            let viewer = document.getElementById('viewerName').value.trim();
+            if(!viewer) {
+                alert("กรุณากรอก 'ชื่อเล่นของคุณ' ก่อนเข้าชมครับ");
+                return;
+            }
+
+            // ลิงก์สำหรับผู้ชม (ปิดกล้อง/ไมค์อัตโนมัติ ให้พิมพ์แชทและดูได้อย่างเดียว)
+            let jitsiUrl = `https://meet.jit.si/${room}#userInfo.displayName="${encodeURIComponent(viewer)}"&config.startWithAudioMuted=true&config.startWithVideoMuted=true&interfaceConfig.DEFAULT_LANGUAGE=th&interfaceConfig.TOOLBAR_BUTTONS=['chat','raisehand','tileview','fullscreen']`;
+
+            openLiveScreen(room, jitsiUrl);
+        }
+
+        function openLiveScreen(roomName, url) {
+            document.getElementById('homeView').style.display = 'none';
+            document.getElementById('liveView').style.display = 'flex';
+            document.getElementById('currentRoomDisplay').innerText = "ห้อง: " + roomName;
+            
+            let box = document.getElementById('iframeBox');
+            box.innerHTML = `<iframe src="${url}" allow="camera; microphone; fullscreen; display-capture"></iframe>`;
+        }
+
+        function leaveRoom() {
+            document.getElementById('liveView').style.display = 'none';
+            document.getElementById('homeView').style.display = 'flex';
+            document.getElementById('iframeBox').innerHTML = ''; // ปิดวิดีโอเคลียร์ระบบ
         }
     </script>
 
