@@ -146,7 +146,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            border: 1px solid #1f2937;
+            border: 1px solid #374151;
         }
         .room-info h4 { margin: 0 0 4px 0; font-size: 16px; color: #fff; }
         .room-info span { font-size: 12px; color: var(--accent-red); font-weight: bold; }
@@ -216,8 +216,8 @@
                     <div>
                         <h2>🔴 เปิดห้องไลฟ์ใหม่</h2>
                         <div class="input-group">
-                            <label>ตั้งชื่อห้องของคุณ</label>
-                            <input type="text" id="myRoomName" placeholder="เช่น sale-fish, room1">
+                            <label>ตั้งชื่อห้อง (ภาษาอังกฤษหรือตัวเลขเท่านั้น)</label>
+                            <input type="text" id="myRoomName" placeholder="เช่น room1, saleroom">
                         </div>
                     </div>
                     <div>
@@ -260,7 +260,7 @@
                 </div>
             </div>
 
-            <!-- กล่องแชทสดเด้งโชว์หน้าจอหลัก (ใช้งานได้ทันที 100%) -->
+            <!-- กล่องแชทสดเด้งโชว์หน้าจอหลัก -->
             <div class="chat-feed-box">
                 <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:12px;">💬 แชทสดหน้าจอหลัก (พิมพ์คุยกันตรงนี้ได้เลย)</h2>
                 <div class="chat-messages" id="chatContainer">
@@ -339,7 +339,6 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // ฟังก์ชันส่งข้อความแชทเข้า Supabase
         async function sendChatMessage() {
             let viewerInput = document.getElementById('viewerNickName').value.trim();
             let roomInput = document.getElementById('myRoomName').value.trim();
@@ -375,7 +374,12 @@
         async function startMyLive() {
             let room = document.getElementById('myRoomName').value.trim();
             if(!room) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
-            let cleanRoom = room.replace(/\s+/g, '-');
+            
+            let cleanRoom = room.replace(/[^a-zA-Z0-9_-]/g, '');
+            if(!cleanRoom) {
+                alert("กรุณาใช้ชื่อห้องเป็นภาษาอังกฤษหรือตัวเลข (เช่น room1, live2026)");
+                return;
+            }
             activeRoomId = cleanRoom;
 
             let { error } = await supabaseClient
@@ -396,13 +400,14 @@
             document.getElementById('shareSection').style.display = "block";
             document.querySelector('.btn-end').style.display = "block";
 
-            let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&room=${cleanRoom}&quality=0&webcam`;
+            // เพิ่มพารามิเตอร์ &chatbutton และ &chat เพื่อให้ฝั่งคนไลฟ์เปิดแชทรับข้อความได้
+            let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&room=${cleanRoom}&quality=0&webcam&chatbutton&chat`;
             window.open(pushUrl, '_blank');
         }
 
         async function endMyLive() {
             let roomInput = document.getElementById('myRoomName').value.trim();
-            let targetRoom = activeRoomId || (roomInput ? roomInput.replace(/\s+/g, '-') : "");
+            let targetRoom = activeRoomId || (roomInput ? roomInput.replace(/[^a-zA-Z0-9_-]/g, '') : "");
             
             if(!targetRoom) {
                 alert("ไม่พบชื่อห้องที่ต้องการปิด");
@@ -465,7 +470,8 @@
                 return;
             }
 
-            let url = `https://vdo.ninja/?room=${roomName}&solo&autostart&displayName=${encodeURIComponent(name)}`;
+            // เพิ่มพารามิเตอร์ &chatbutton, &chat และ &label เข้าไปในลิงก์ผู้ชม เพื่อเปิดปุ่มและช่องพิมพ์แชทในหน้าจอ VDO.Ninja ทันที
+            let url = `https://vdo.ninja/?room=${roomName}&solo&autostart&chatbutton&chat&label&displayName=${encodeURIComponent(name)}`;
             window.open(url, '_blank');
         }
 
@@ -490,7 +496,7 @@
                     let viewerName = prompt("กรอกชื่อเล่นของคุณ (สำหรับเข้าชมและแชท):");
                     if (!viewerName) viewerName = "ผู้ชม";
 
-                    let watchUrl = `https://vdo.ninja/?room=${targetRoom}&solo&autostart&displayName=${encodeURIComponent(viewerName)}`;
+                    let watchUrl = `https://vdo.ninja/?room=${targetRoom}&solo&autostart&chatbutton&chat&label&displayName=${encodeURIComponent(viewerName)}`;
                     window.location.href = watchUrl;
                 });
             }
