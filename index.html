@@ -145,7 +145,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            border: 1px solid #1f2937;
+            border: 1px solid #374151;
         }
         .room-info h4 { margin: 0 0 4px 0; font-size: 16px; color: #fff; }
         .room-info span { font-size: 12px; color: var(--accent-red); font-weight: bold; }
@@ -307,7 +307,7 @@
             window.open(pushUrl, '_blank');
         }
 
-        // ปิดห้อง (ปรับปรุงใหม่: ดึงชื่อห้องจากช่องพิมพ์มาลบโดยตรง ป้องกันห้องค้าง)
+        // ปิดห้อง
         async function endMyLive() {
             let roomInput = document.getElementById('myRoomName').value.trim();
             let targetRoom = activeRoomId || (roomInput ? roomInput.replace(/\s+/g, '-') : "");
@@ -353,7 +353,7 @@
             }
         }
 
-        // ฝั่งคนดูคลิกเข้าชมห้อง
+        // ฝั่งคนดูคลิกเข้าชมห้อง (ใช้พารามิเตอร์ view ล็อกเป็นผู้ชม และส่งชื่อเล่นรอบเดียวจบ)
         async function watchRoom(roomName) {
             let name = document.getElementById('viewerNickName').value.trim();
             if(!name) {
@@ -375,11 +375,12 @@
                 return;
             }
 
-            let url = `https://vdo.ninja/?playback=${roomName}&chatbutton&label&displayName=${encodeURIComponent(name)}`;
+            // ใช้พารามิเตอร์ view=ห้อง และ &clean&codec=vp9 เพื่อบังคับเป็นหน้าจอรับชมและแชทโดยไม่มีการเด้งเปิดกล้อง
+            let url = `https://vdo.ninja/?view=${roomName}&chatbutton&label&displayName=${encodeURIComponent(name)}`;
             window.open(url, '_blank');
         }
 
-        // โหลดข้อมูลอัตโนมัติ
+        // โหลดข้อมูลอัตโนมัติและจัดการลิงก์ตรงสำหรับผู้ชม
         window.onload = function() {
             fetchRooms();
             setInterval(fetchRooms, 3000);
@@ -387,17 +388,18 @@
             const urlParams = new URLSearchParams(window.location.search);
             const targetRoom = urlParams.get('room');
             if (targetRoom) {
-                supabaseClient.from('live_rooms').select('*').eq('name', targetRoom).single().then(({data}) => {
+                supabaseClient.from('live_rooms').select('*').eq('name', targetRoom).single().then(async ({data}) => {
                     if (!data) {
                         alert("ขออภัย! ห้องไลฟ์นี้ได้ปิดตัวลงแล้วครับ");
                         window.location.href = window.location.href.split('?')[0];
                         return;
                     }
                     
+                    // สำหรับคนที่กดเข้ามาผ่านลิงก์แชร์โดยตรง ให้กรอกชื่อครั้งเดียวจบโดยไม่ต้องเปิดซ้ำซ้อน
                     let viewerName = prompt("กรอกชื่อเล่นของคุณ (สำหรับแสดงในแชท):");
                     if (!viewerName) viewerName = "ผู้ชมทั่วไป";
 
-                    let watchUrl = `https://vdo.ninja/?playback=${targetRoom}&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
+                    let watchUrl = `https://vdo.ninja/?view=${targetRoom}&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
                     window.location.href = watchUrl;
                 });
             }
