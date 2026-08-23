@@ -146,7 +146,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            border: 1px solid #374151;
+            border: 1px solid #1f2937;
         }
         .room-info h4 { margin: 0 0 4px 0; font-size: 16px; color: #fff; }
         .room-info span { font-size: 12px; color: var(--accent-red); font-weight: bold; }
@@ -286,7 +286,6 @@
         let generatedUrl = "";
         let activeRoomId = "";
 
-        // 1. ดึงรายชื่อห้องทั้งหมดจาก Supabase
         async function fetchRooms() {
             let { data, error } = await supabaseClient
                 .from('live_rooms')
@@ -295,7 +294,6 @@
 
             let container = document.getElementById('roomContainer');
             if (error) {
-                console.error("Error fetching rooms:", error);
                 container.innerHTML = `<div class="empty-text">ไม่สามารถโหลดข้อมูลห้องได้</div>`;
                 return;
             }
@@ -320,7 +318,6 @@
             });
         }
 
-        // 2. ดึงข้อความแชทสดจาก Supabase แบบเรียลไทม์
         async function fetchChat() {
             let { data, error } = await supabaseClient
                 .from('live_chats')
@@ -338,7 +335,6 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // 3. ส่งข้อความแชทขึ้นระบบกลาง
         async function sendChatMessage() {
             let sender = document.getElementById('viewerNickName').value.trim() || document.getElementById('myRoomName').value.trim() || "ผู้เยี่ยมชม";
             let messageInput = document.getElementById('chatInput');
@@ -356,7 +352,6 @@
             }
         }
 
-        // เปิดห้องไลฟ์ (แก้ลิงก์ส่งสัญญาณภาพและเสียงให้เชื่อมต่อกับ Room ID โดยตรง 100%)
         async function startMyLive() {
             let room = document.getElementById('myRoomName').value.trim();
             if(!room) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
@@ -381,12 +376,11 @@
             document.getElementById('shareSection').style.display = "block";
             document.querySelector('.btn-end').style.display = "block";
 
-            // ลิงก์ส่งสตรีมภาพและเสียง (บังคับผูกเข้า Room ID เพื่อให้ระบบรับ-ส่งสัญญาณทำงานสมบูรณ์)
-            let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&room=${cleanRoom}&quality=0&webcam`;
+            // เปิดลิงก์ฝั่งสตรีม พร้อมเปิดใช้งานช่องแชทในตัว (`&chatbutton`)
+            let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&room=${cleanRoom}&quality=0&webcam&chatbutton`;
             window.open(pushUrl, '_blank');
         }
 
-        // ปิดห้อง
         async function endMyLive() {
             let roomInput = document.getElementById('myRoomName').value.trim();
             let targetRoom = activeRoomId || (roomInput ? roomInput.replace(/\s+/g, '-') : "");
@@ -432,7 +426,7 @@
             }
         }
 
-        // ฝั่งคนดูคลิกเข้าชมห้อง (ใช้ลิงก์รับชมแบบดึงสัญญาณภาพและเสียงตรงจาก Room ID)
+        // ฝั่งคนดู (เพิ่มพารามิเตอร์ &chatbutton เพื่อเปิดปุ่มพิมพ์แชทคุยกับคนไลฟ์ได้ทันที)
         async function watchRoom(roomName) {
             let name = document.getElementById('viewerNickName').value.trim();
             if(!name) {
@@ -453,12 +447,11 @@
                 return;
             }
 
-            // ลิงก์รับชมภาพและเสียงแบบสมบูรณ์ (ดึง Stream จากห้องนั้นตรงๆ พร้อมชื่อแสดงผล)
-            let url = `https://vdo.ninja/?room=${roomName}&solo&autostart&displayName=${encodeURIComponent(name)}`;
+            // เพิ่ม &chatbutton และ &label เพื่อเปิดระบบแชทในหน้าจอผู้ชม
+            let url = `https://vdo.ninja/?room=${roomName}&solo&autostart&chatbutton&label&displayName=${encodeURIComponent(name)}`;
             window.open(url, '_blank');
         }
 
-        // โหลดข้อมูลอัตโนมัติทุก 3 วินาที (ทั้งรายชื่อห้องและข้อความแชท)
         window.onload = function() {
             fetchRooms();
             fetchChat();
@@ -480,7 +473,7 @@
                     let viewerName = prompt("กรอกชื่อเล่นของคุณ (สำหรับเข้าชมและแชท):");
                     if (!viewerName) viewerName = "ผู้ชม";
 
-                    let watchUrl = `https://vdo.ninja/?room=${targetRoom}&solo&autostart&displayName=${encodeURIComponent(viewerName)}`;
+                    let watchUrl = `https://vdo.ninja/?room=${targetRoom}&solo&autostart&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
                     window.location.href = watchUrl;
                 });
             }
