@@ -3,103 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ห้องไลฟ์สดของคุณเดียร์</title>
+    <title>DEAR LIVE - แพลตฟอร์มไลฟ์สดส่วนตัว</title>
     <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --accent-red: #f43f5e;
+            --accent-blue: #3b82f6;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a;
-            color: #ffffff;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
             min-height: 100vh;
         }
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        h1 { color: #ef4444; margin: 0 0 8px 0; font-size: 28px; }
-        p { color: #94a3b8; font-size: 16px; margin: 0; }
-        
-        .card-container {
+        /* Navbar */
+        nav {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 800px;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1f2937;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+        .logo span { color: var(--accent-red); }
+
+        /* Hero Section */
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex: 1;
             width: 100%;
+            box-sizing: border-box;
+        }
+        .hero-text {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .hero-text h1 { font-size: 32px; margin-bottom: 10px; font-weight: 700; }
+        .hero-text p { color: var(--text-muted); font-size: 16px; margin: 0; }
+
+        /* Cards Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
         }
         .card {
-            background: #1e293b;
-            border-radius: 16px;
+            background: var(--card-bg);
+            border: 1px solid #1f2937;
+            border-radius: 20px;
             padding: 30px;
-            flex: 1;
-            min-width: 300px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            border: 1px solid #334155;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, border-color 0.2s;
         }
-        .card h3 { margin-top: 0; font-size: 20px; color: #f8fafc; }
-        .card p { font-size: 14px; color: #94a3b8; margin-bottom: 20px; }
-        
-        .btn {
-            display: inline-block;
-            padding: 14px 24px;
-            font-size: 16px;
-            font-weight: bold;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: 0.2s;
-            width: 80%;
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #374151;
         }
-        .btn-live {
-            background-color: #ef4444;
-            color: white;
-        }
-        .btn-live:hover { background-color: #dc2626; }
-        
-        .btn-watch {
-            background-color: #3b82f6;
-            color: white;
-        }
-        .btn-watch:hover { background-color: #2563eb; }
+        .card h2 { font-size: 22px; margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        .card p { color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
 
-        .footer-note {
-            margin-top: 40px;
-            color: #64748b;
+        /* Form Inputs */
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
             font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
             text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-live { background-color: var(--accent-red); color: white; }
+        .btn-watch { background-color: var(--accent-blue); color: white; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #4b5563;
+            font-size: 13px;
+            border-top: 1px solid #1f2937;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>🔴 ห้องไลฟ์สดส่วนตัว</h1>
-        <p>ช่องทางถ่ายทอดสดของคุณเดียร์ ปลอดภัย ไม่โดนแบน 100%</p>
-    </header>
+    <nav>
+        <div class="logo">DEAR<span>LIVE</span></div>
+    </nav>
 
-    <div class="card-container">
-        <!-- สำหรับตัวคุณเดียร์ (เปิดกล้องไลฟ์) -->
-        <div class="card" style="border-top: 5px solid #ef4444;">
-            <h3>🎥 สำหรับคุณเดียร์ (เจ้าของห้อง)</h3>
-            <p>กดปุ่มนี้เพื่อเปิดกล้องและเริ่มจัดรายการไลฟ์สดของคุณ</p>
-            <a href="https://meet.jit.si/KhunDearLiveRoom2026#config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.DEFAULT_LANGUAGE=th" target="_blank" class="btn btn-live">เริ่มไลฟ์สด</a>
+    <div class="container">
+        <div class="hero-text">
+            <h1>ระบบไลฟ์สดส่วนตัวของคุณเดียร์</h1>
+            <p>อิสระ คมชัด ไม่โดนแบน ปลอดภัย 100%</p>
         </div>
 
-        <!-- สำหรับผู้ชม (เข้าชมและพิมพ์แชท) -->
-        <div class="card" style="border-top: 5px solid #3b82f6;">
-            <h3>👀 สำหรับผู้ชม</h3>
-            <p>กดปุ่มนี้เพื่อเข้าไปดูไลฟ์ และพิมพ์ข้อความพูดคุยในแชท</p>
-            <a href="https://meet.jit.si/KhunDearLiveRoom2026#config.startWithAudioMuted=true&config.startWithVideoMuted=true&interfaceConfig.DEFAULT_LANGUAGE=th" target="_blank" class="btn btn-watch">เข้าชมไลฟ์สด</a>
+        <div class="grid">
+            <!-- ฝั่งเจ้าของห้อง (เริ่มไลฟ์) -->
+            <div class="card" style="border-top: 4px solid var(--accent-red);">
+                <div>
+                    <h2>🔴 เปิดห้องไลฟ์สด</h2>
+                    <p>สำหรับคุณเดียร์ (เจ้าของห้อง) กรอกชื่อของคุณแล้วกดปุ่มเพื่อเริ่มออกอากาศทันที</p>
+                    
+                    <div class="input-group">
+                        <label>ชื่อผู้จัดไลฟ์</label>
+                        <input type="text" id="hostName" value="คุณเดียร์" placeholder="ใส่ชื่อของคุณ">
+                    </div>
+                </div>
+                <button onclick="startLive()" class="btn btn-live">เริ่มไลฟ์สดทันที</button>
+            </div>
+
+            <!-- ฝั่งผู้ชม (เข้าชม) -->
+            <div class="card" style="border-top: 4px solid var(--accent-blue);">
+                <div>
+                    <h2>👀 เข้าชมไลฟ์สด</h2>
+                    <p>สำหรับผู้ชม ใส่ชื่อเล่นของคุณแล้วกดเข้ามาดูและพิมพ์พูดคุยในไลฟ์ได้เลย</p>
+                    
+                    <div class="input-group">
+                        <label>ชื่อเล่นของคุณ (สำหรับแสดงในแชท)</label>
+                        <input type="text" id="viewerName" placeholder="เช่น น้องฟ้า, คุณเอ">
+                    </div>
+                </div>
+                <button onclick="joinWatch()" class="btn btn-watch">เข้าชมไลฟ์</button>
+            </div>
         </div>
     </div>
 
-    <div class="footer-note">
-        💡 <b>วิธีแชร์:</b> ก๊อปปี้ลิงก์เว็บไซต์นี้ไปโพสต์ให้คนอื่นดูได้เลย เมื่อคนอื่นกด "เข้าชมไลฟ์สด" ระบบจะปิดกล้องเขาให้อัตโนมัติ ปลอดภัยและใช้งานง่ายครับ
-    </div>
+    <footer>
+        <p>© 2026 DEAR LIVE PLATFORM • สร้างและควบคุมได้เอง 100%</p>
+    </footer>
+
+    <script>
+        // ชื่อห้องหลักของคุณเดียร์
+        const roomName = "KhunDearLiveRoom2026";
+
+        function startLive() {
+            let name = document.getElementById('hostName').value.trim();
+            if(!name) name = "คุณเดียร์";
+            
+            // ลิงก์เข้าห้องแบบเปิดกล้อง/ไมค์ สำหรับ Host พร้อมส่งชื่อเข้าไป
+            let url = `https://meet.jit.si/${roomName}#userInfo.displayName="${encodeURIComponent(name)}"&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.DEFAULT_LANGUAGE=th`;
+            window.location.href = url;
+        }
+
+        function joinWatch() {
+            let name = document.getElementById('viewerName').value.trim();
+            if(!name) {
+                alert("กรุณากรอกชื่อเล่นก่อนเข้าชมครับ");
+                return;
+            }
+            
+            // ลิงก์เข้าห้องแบบปิดกล้องอัตโนมัติ สำหรับ Viewer พร้อมส่งชื่อเข้าแชท
+            let url = `https://meet.jit.si/${roomName}#userInfo.displayName="${encodeURIComponent(name)}"&config.startWithAudioMuted=true&config.startWithVideoMuted=true&interfaceConfig.DEFAULT_LANGUAGE=th`;
+            window.location.href = url;
+        }
+    </script>
 
 </body>
 </html>
