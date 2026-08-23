@@ -154,7 +154,7 @@
         <div class="container">
             <div class="hero-text">
                 <h1>แพลตฟอร์มไลฟ์สดอิสระ</h1>
-                <p>คลิกเดียวเปิดห้อง หรือคลิกเดียวเข้าชมได้ทันที</p>
+                <p>ดูคือดูเลย คลิกเดียวเข้าชมหรือเปิดไลฟ์ได้ทันที ไม่มีหน้าจอเตือนกวนใจ</p>
             </div>
 
             <div class="grid">
@@ -164,95 +164,74 @@
                         <h2>🔴 เปิดห้องไลฟ์ใหม่</h2>
                         <div class="input-group">
                             <label>ตั้งชื่อห้องของคุณ</label>
-                            <input type="text" id="myRoomName" placeholder="เช่น sale-fish, room1">
-                        </div>
-                        <div class="input-group">
-                            <label>ชื่อของคุณ</label>
-                            <input type="text" id="myNickName" value="คุณเดียร์" placeholder="ชื่อผู้จัดไลฟ์">
+                            <input type="text" id="myRoomName" placeholder="เช่น dear-live, sale1">
                         </div>
                     </div>
-                    <button onclick="startMyLive()" class="btn btn-live">เปิดกล้องไลฟ์ทันที</button>
+                    <button onclick="startMyLive()" class="btn btn-live">เปิดห้องไลฟ์ทันที</button>
                 </div>
 
                 <!-- ฝั่งผู้ชม -->
                 <div class="card" style="border-top: 4px solid var(--accent-blue);">
                     <div>
-                        <h2>👀 ชื่อเล่นของคุณ (สำหรับพิมพ์แชท)</h2>
+                        <h2>👀 ข้อมูลสำหรับผู้ชม</h2>
                         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
-                            ใส่ชื่อเล่นแล้วเลือกห้องด้านล่างเพื่อคลิกดูได้ทันที
+                            เลือกห้องด้านล่างเพื่อคลิกดูได้ทันที ไม่ต้องใส่รหัส ไม่ต้องล็อกอิน
                         </p>
-                        <div class="input-group">
-                            <label>ชื่อเล่นของคุณ</label>
-                            <input type="text" id="viewerNickName" placeholder="เช่น น้องฟ้า, ลูกค้า">
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- รายการห้องให้เลือกคลิกดูทันที -->
+            <!-- รายการห้องให้เลือกคลิกดูทันที (ใช้ระบบ Stream แบบดูได้ทันที) -->
             <div class="room-list-box">
                 <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:15px;">📺 เลือกห้องที่ต้องการเข้าชม</h2>
                 
                 <div class="room-list">
                     <div class="room-item">
                         <div class="room-info">
-                            <h4>ห้องหลัก: ห้องพูดคุยทั่วไป (General-Room)</h4>
-                            <span>● เปิดใช้งานอยู่</span>
+                            <h4>ห้องหลัก: ทั่วไป (General)</h4>
+                            <span>● พร้อมดูทันที</span>
                         </div>
-                        <button onclick="watchRoom('General-Room')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูเลย</button>
+                        <button onclick="watchRoom('General')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูเลย</button>
                     </div>
 
                     <div class="room-item">
                         <div class="room-info">
-                            <h4>ห้องที่ 2: ตลาดนัดออนไลน์ (Market-Room)</h4>
-                            <span>● เปิดใช้งานอยู่</span>
+                            <h4>ห้องที่ 2: ตลาดนัด (Market)</h4>
+                            <span>● พร้อมดูทันที</span>
                         </div>
-                        <button onclick="watchRoom('Market-Room')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูเลย</button>
+                        <button onclick="watchRoom('Market')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูเลย</button>
                     </div>
 
                     <div class="room-item">
                         <div class="room-info">
-                            <h4>ห้องที่ 3: ห้องส่วนตัว / ปาร์ตี้ (Party-Room)</h4>
-                            <span>● เปิดใช้งานอยู่</span>
+                            <h4>ห้องที่ 3: ปาร์ตี้ (Party)</h4>
+                            <span>● พร้อมดูทันที</span>
                         </div>
-                        <button onclick="watchRoom('Party-Room')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูเลย</button>
+                        <button onclick="watchRoom('Party')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูเลย</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>© 2026 DEAR LIVE PLATFORM • คลิกเดียวพุ่งเข้าห้อง เต็มตา ไม่มีหน้าจอกวนใจ</p>
+            <p>© 2026 DEAR LIVE PLATFORM • ดูคือดูเลย ไม่มีหน้าต่างเตือนกวนใจ</p>
         </footer>
     </div>
 
     <script>
         function startMyLive() {
             let room = document.getElementById('myRoomName').value.trim();
-            let name = document.getElementById('myNickName').value.trim();
-
             if(!room) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
-            if(!name) { alert("กรุณาใส่ชื่อของคุณก่อนครับ"); return; }
-
             let cleanRoom = room.replace(/\s+/g, '-');
             
-            // เปิดลิงก์แบบเต็มแท็บใหม่ ทะลุเข้าหน้าไลฟ์ทันที 100%
-            let url = `https://meet.jit.si/${cleanRoom}#userInfo.displayName="${encodeURIComponent(name)}"&config.startWithAudioMuted=false&config.startWithVideoMuted=false&config.prejoinPageEnabled=false&interfaceConfig.DEFAULT_LANGUAGE=th`;
-
+            // เปลี่ยนมาใช้ระบบวิดีโอสตรีมมิ่งอิสระ ตัดปัญหาหน้าต่างประชุมทิ้งทั้งหมด
+            let url = `https://vdo.ninja/?push=${cleanRoom}&quality=0`;
             window.open(url, '_blank');
         }
 
         function watchRoom(roomName) {
-            let name = document.getElementById('viewerNickName').value.trim();
-            if(!name) {
-                alert("กรุณากรอก 'ชื่อเล่นของคุณ' ก่อนคลิกดูครับ");
-                document.getElementById('viewerNickName').focus();
-                return;
-            }
-
-            // เปิดลิงก์แบบเต็มแท็บใหม่ ทะลุเข้าหน้าดูไลฟ์ทันที 100%
-            let url = `https://meet.jit.si/${roomName}#userInfo.displayName="${encodeURIComponent(name)}"&config.startWithAudioMuted=true&config.startWithVideoMuted=true&config.prejoinPageEnabled=false&interfaceConfig.DEFAULT_LANGUAGE=th`;
-
+            // พาผู้ชมเข้าสู่หน้าจอรับชมวิดีโอสตรีมทันทีแบบไม่มีข้อความเตือน
+            let url = `https://vdo.ninja/?view=${roomName}`;
             window.open(url, '_blank');
         }
     </script>
