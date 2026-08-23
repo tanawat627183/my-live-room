@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEAR LIVE - ไลฟ์สดแชทสดอิสระ</title>
+    <title>DEAR LIVE - แพลตฟอร์มไลฟ์สดและแชทสด</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -114,6 +114,7 @@
         .btn:hover { opacity: 0.9; }
         .btn-live { background-color: var(--accent-red); color: white; }
         .btn-watch { background-color: var(--accent-blue); color: white; }
+        .btn-end { background-color: #374151; color: #f87171; margin-top: 10px; }
 
         .room-list-box {
             background: var(--card-bg);
@@ -134,6 +135,13 @@
         .room-info h4 { margin: 0 0 4px 0; font-size: 16px; color: #fff; }
         .room-info span { font-size: 12px; color: var(--accent-red); font-weight: bold; }
 
+        .empty-text {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            padding: 20px 0;
+        }
+
         footer {
             text-align: center;
             padding: 20px;
@@ -153,8 +161,8 @@
 
         <div class="container">
             <div class="hero-text">
-                <h1>แพลตฟอร์มไลฟ์สดอิสระ (รองรับแชทสด)</h1>
-                <p>ผู้ชมใส่ชื่อเล่นได้ พิมพ์แชทคุยได้ทันที ไม่ต้องล็อกอิน</p>
+                <h1>แพลตฟอร์มไลฟ์สดและแชทสดอิสระ</h1>
+                <p>สร้างห้องปุ๊บ ขึ้นลิสต์ให้คนดูคลิกดูและแชทได้ทันที</p>
             </div>
 
             <div class="grid">
@@ -167,15 +175,18 @@
                             <input type="text" id="myRoomName" placeholder="เช่น sale-fish, room1">
                         </div>
                     </div>
-                    <button onclick="startMyLive()" class="btn btn-live">เปิดกล้องไลฟ์ทันที</button>
+                    <div>
+                        <button onclick="startMyLive()" class="btn btn-live">เปิดห้องไลฟ์ทันที</button>
+                        <button onclick="endMyLive()" class="btn btn-end">🛑 ปิดห้อง / เลิกไลฟ์</button>
+                    </div>
                 </div>
 
-                <!-- ฝั่งผู้ชม (ตั้งชื่อเล่นก่อนดู) -->
+                <!-- ฝั่งผู้ชม -->
                 <div class="card" style="border-top: 4px solid var(--accent-blue);">
                     <div>
                         <h2>👀 ข้อมูลสำหรับผู้ชม</h2>
                         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
-                            กรอกชื่อเล่นของคุณก่อน แล้วเลือกห้องด้านล่างเพื่อเข้าชมและพิมพ์แชทได้เลย
+                            กรอกชื่อเล่นของคุณก่อน แล้วเลือกห้องด้านล่างเพื่อคลิกดูและพิมพ์แชทได้ทันที
                         </p>
                         <div class="input-group">
                             <label>ชื่อเล่นของคุณ (สำหรับแสดงในแชท)</label>
@@ -185,52 +196,90 @@
                 </div>
             </div>
 
-            <!-- รายการห้องให้เลือกคลิกดูพร้อมแชท -->
+            <!-- รายการห้องสดๆ -->
             <div class="room-list-box">
-                <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:15px;">📺 เลือกห้องที่ต้องการเข้าชม</h2>
-                
-                <div class="room-list">
-                    <div class="room-item">
-                        <div class="room-info">
-                            <h4>ห้องหลัก: ทั่วไป (General-Room)</h4>
-                            <span>● พร้อมแชทสด</span>
-                        </div>
-                        <button onclick="watchRoom('General-Room')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูและแชท</button>
-                    </div>
-
-                    <div class="room-item">
-                        <div class="room-info">
-                            <h4>ห้องที่ 2: ตลาดนัด (Market-Room)</h4>
-                            <span>● พร้อมแชทสด</span>
-                        </div>
-                        <button onclick="watchRoom('Market-Room')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูและแชท</button>
-                    </div>
-
-                    <div class="room-item">
-                        <div class="room-info">
-                            <h4>ห้องที่ 3: ปาร์ตี้ (Party-Room)</h4>
-                            <span>● พร้อมแชทสด</span>
-                        </div>
-                        <button onclick="watchRoom('Party-Room')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูและแชท</button>
-                    </div>
+                <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:15px;">📺 รายการห้องที่กำลังไลฟ์อยู่</h2>
+                <div class="room-list" id="roomContainer">
+                    <!-- รายการห้องจะแสดงตรงนี้อัตโนมัติ -->
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>© 2026 DEAR LIVE PLATFORM • ดูคือดูเลย มีแชทสดในตัว</p>
+            <p>© 2026 DEAR LIVE PLATFORM • ไลฟ์สดอิสระ มีแชทสดในตัว</p>
         </footer>
     </div>
 
     <script>
+        function getRooms() {
+            let saved = localStorage.getItem('dear_live_chat_rooms');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return [];
+        }
+
+        function renderRooms() {
+            let rooms = getRooms();
+            let container = document.getElementById('roomContainer');
+            container.innerHTML = "";
+
+            if (rooms.length === 0) {
+                container.innerHTML = `<div class="empty-text">ยังไม่มีห้องไลฟ์ในขณะนี้ สามารถเปิดห้องใหม่ด้านบนได้เลยครับ</div>`;
+                return;
+            }
+
+            rooms.forEach(r => {
+                let html = `
+                    <div class="room-item">
+                        <div class="room-info">
+                            <h4>ห้อง: ${r.label}</h4>
+                            <span>● กำลังออนแอร์ (พร้อมแชท)</span>
+                        </div>
+                        <button onclick="watchRoom('${r.name}')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูและแชท</button>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        let currentActiveRoom = "";
+
         function startMyLive() {
             let room = document.getElementById('myRoomName').value.trim();
             if(!room) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
             let cleanRoom = room.replace(/\s+/g, '-');
             
-            // ลิงก์สำหรับเจ้าของห้องเปิดกล้องสตรีม
+            currentActiveRoom = cleanRoom;
+
+            let rooms = getRooms();
+            if(!rooms.some(r => r.name === cleanRoom)) {
+                rooms.unshift({ name: cleanRoom, label: room });
+                localStorage.setItem('dear_live_chat_rooms', JSON.stringify(rooms));
+            }
+
+            renderRooms();
+
+            // เปิดหน้าจอไลฟ์ฝั่งเจ้าของห้อง
             let url = `https://vdo.ninja/?push=${cleanRoom}&quality=0`;
             window.open(url, '_blank');
+        }
+
+        function endMyLive() {
+            let roomInput = document.getElementById('myRoomName').value.trim();
+            let targetRoom = roomInput ? roomInput.replace(/\s+/g, '-') : currentActiveRoom;
+
+            if(!targetRoom) {
+                alert("กรุณาใส่ชื่อห้องที่คุณเปิดไลฟ์อยู่ เพื่อกดปิดครับ");
+                return;
+            }
+
+            let rooms = getRooms();
+            let updatedRooms = rooms.filter(r => r.name !== targetRoom);
+            localStorage.setItem('dear_live_chat_rooms', JSON.stringify(updatedRooms));
+
+            renderRooms();
+            alert("ปิดห้องไลฟ์เรียบร้อยแล้ว ห้องถูกลบออกจากระบบและหายไปจากหน้าจอคนดูแล้วครับ!");
         }
 
         function watchRoom(roomName) {
@@ -241,10 +290,13 @@
                 return;
             }
 
-            // ลิงก์สำหรับผู้ชม พร้อมเปิดใช้งานปุ่มแชทและบังคับใส่ชื่อเล่นตามที่กรอก
+            // ลิงก์สำหรับผู้ชม พร้อมเปิดแชทสดและส่งชื่อเล่นเข้าไป
             let url = `https://vdo.ninja/?room=${roomName}&chatbutton&label&displayName=${encodeURIComponent(name)}`;
             window.open(url, '_blank');
         }
+
+        // โหลดเช็กลิสต์ห้องตอนเปิดเว็บ
+        renderRooms();
     </script>
 
 </body>
