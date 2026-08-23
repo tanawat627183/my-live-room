@@ -118,6 +118,7 @@
         .btn-live { background-color: var(--accent-red); color: white; }
         .btn-share { background-color: var(--accent-green); color: white; margin-top: 10px; display: none; }
         .btn-copy { background-color: var(--accent-blue); color: white; margin-top: 10px; display: none; }
+        .btn-end { background-color: #374151; color: #f87171; margin-top: 10px; display: none; }
         .btn-refresh { background-color: #1f2937; color: var(--text-muted); border: 1px solid #374151; font-size: 13px; padding: 8px; margin-bottom: 15px; }
 
         .share-box {
@@ -175,7 +176,7 @@
         <div class="container" id="mainContainer">
             <div class="hero-text">
                 <h1>แพลตฟอร์มไลฟ์สดอิสระ</h1>
-                <p>สร้างห้องปุ๊บ ซิงค์โชว์ทุกเครื่องทันที ปิดไลฟ์ปุ๊บห้องหายอัตโนมัติ</p>
+                <p>สร้างห้องปุ๊บ ซิงค์โชว์ทุกเครื่องทันที แชทสดลอยไม่บังจอ</p>
             </div>
 
             <div class="grid">
@@ -196,6 +197,7 @@
                             <input type="text" id="roomShareLink" readonly style="background:#111827; font-size:13px; margin-bottom:8px;">
                             <button onclick="copyLink()" class="btn btn-copy">📋 คัดลอกลิงก์ไลฟ์</button>
                             <button onclick="shareLink()" class="btn btn-share">🔗 แชร์ลิงก์ (LINE / Facebook)</button>
+                            <button onclick="endMyLive()" class="btn btn-end">🛑 สิ้นสุดการไลฟ์ (ลบห้องทันที)</button>
                         </div>
                     </div>
                 </div>
@@ -240,7 +242,6 @@
 
         let generatedUrl = "";
         let activeRoomId = "";
-        let liveWindowCheck = null;
 
         async function fetchRooms() {
             let { data, error } = await supabaseClient
@@ -274,7 +275,6 @@
             });
         }
 
-        // เปิดห้องไลฟ์ และเปิดหน้าต่างสตรีม พร้อมระบบตรวจจับอัตโนมัติ (ถ้าปิดหน้าต่างสตรีม ห้องจะหายทันที)
         async function startMyLive() {
             let room = document.getElementById('myRoomName').value.trim();
             if(!room) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
@@ -302,32 +302,35 @@
 
             document.getElementById('roomShareLink').value = viewerPageUrl;
             document.getElementById('shareSection').style.display = "block";
+            document.querySelector('.btn-end').style.display = "block";
 
-            // เปิดหน้าต่างสตรีม VDO.Ninja
             let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&room=${cleanRoom}&quality=0&webcam&autostart`;
-            let liveWindow = window.open(pushUrl, '_blank');
-
-            // ตรวจจับอัตโนมัติ: ถ้าเจ้าของห้องปิดแท็บไลฟ์ (กดวางสาย/ปิดหน้าต่าง) ระบบจะลบห้องออกจาก Supabase ทันทีโดยไม่ต้องกดปุ่มเพิ่ม
-            if (liveWindowCheck) clearInterval(liveWindowCheck);
-            liveWindowCheck = setInterval(async () => {
-                if (liveWindow && liveWindow.closed) {
-                    clearInterval(liveWindowCheck);
-                    await deleteRoomFromSupabase(cleanRoom);
-                }
-            }, 1500);
+            window.open(pushUrl, '_blank');
         }
 
-        // ฟังก์ชันลบห้องออกจากฐานข้อมูล
-        async function deleteRoomFromSupabase(roomName) {
-            await supabaseClient
+        async function endMyLive() {
+            let targetRoom = activeRoomId || document.getElementById('myRoomName').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+            
+            if(!targetRoom) {
+                alert("ไม่พบชื่อห้องที่ต้องการปิด");
+                return;
+            }
+
+            let { error } = await supabaseClient
                 .from('live_rooms')
                 .delete()
-                .eq('name', roomName);
+                .eq('name', targetRoom);
+
+            if (error) {
+                alert("เกิดข้อผิดพลาดในการปิดห้อง: " + error.message);
+                return;
+            }
 
             fetchRooms();
             document.getElementById('shareSection').style.display = "none";
             document.getElementById('myRoomName').value = "";
             activeRoomId = "";
+            alert("สิ้นสุดการไลฟ์และลบห้องออกจากระบบเรียบร้อยแล้วครับ!");
         }
 
         function copyLink() {
