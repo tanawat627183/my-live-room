@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ห้องไลฟ์สดส่วนตัวของคุณเดียร์</title>
+    <title>ห้องไลฟ์สดของคุณเดียร์</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,32 +11,66 @@
             color: #ffffff;
             margin: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
         header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
-        h1 { color: #ef4444; margin: 0 0 5px 0; font-size: 26px; }
-        p { color: #94a3b8; font-size: 15px; margin: 0; }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: #1e293b;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            height: 650px;
-        }
-        iframe {
+        h1 { color: #ef4444; margin: 0 0 8px 0; font-size: 28px; }
+        p { color: #94a3b8; font-size: 16px; margin: 0; }
+        
+        .card-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 800px;
             width: 100%;
-            height: 100%;
-            border: none;
         }
-        .guide {
+        .card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 30px;
+            flex: 1;
+            min-width: 300px;
             text-align: center;
-            margin-top: 15px;
-            color: #38bdf8;
-            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border: 1px solid #334155;
+        }
+        .card h3 { margin-top: 0; font-size: 20px; color: #f8fafc; }
+        .card p { font-size: 14px; color: #94a3b8; margin-bottom: 20px; }
+        
+        .btn {
+            display: inline-block;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: 0.2s;
+            width: 80%;
+        }
+        .btn-live {
+            background-color: #ef4444;
+            color: white;
+        }
+        .btn-live:hover { background-color: #dc2626; }
+        
+        .btn-watch {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-watch:hover { background-color: #2563eb; }
+
+        .footer-note {
+            margin-top: 40px;
+            color: #64748b;
+            font-size: 13px;
+            text-align: center;
         }
     </style>
 </head>
@@ -44,16 +78,27 @@
 
     <header>
         <h1>🔴 ห้องไลฟ์สดส่วนตัว</h1>
-        <p>ช่องทางไลฟ์ของคุณเดียร์ สะดวก ปลอดภัย ไม่โดนแบน 100%</p>
+        <p>ช่องทางถ่ายทอดสดของคุณเดียร์ ปลอดภัย ไม่โดนแบน 100%</p>
     </header>
 
-    <div class="container">
-        <!-- หน้าจอไลฟ์สด ตั้งค่าบังคับเป็นภาษาไทย (lang=th) -->
-        <iframe src="https://meet.jit.si/KhunDearLiveRoom2026#config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.DEFAULT_LANGUAGE=th" allow="camera; microphone; fullscreen; display-capture"></iframe>
+    <div class="card-container">
+        <!-- สำหรับตัวคุณเดียร์ (เปิดกล้องไลฟ์) -->
+        <div class="card" style="border-top: 5px solid #ef4444;">
+            <h3>🎥 สำหรับคุณเดียร์ (เจ้าของห้อง)</h3>
+            <p>กดปุ่มนี้เพื่อเปิดกล้องและเริ่มจัดรายการไลฟ์สดของคุณ</p>
+            <a href="https://meet.jit.si/KhunDearLiveRoom2026#config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.DEFAULT_LANGUAGE=th" target="_blank" class="btn btn-live">เริ่มไลฟ์สด</a>
+        </div>
+
+        <!-- สำหรับผู้ชม (เข้าชมและพิมพ์แชท) -->
+        <div class="card" style="border-top: 5px solid #3b82f6;">
+            <h3>👀 สำหรับผู้ชม</h3>
+            <p>กดปุ่มนี้เพื่อเข้าไปดูไลฟ์ และพิมพ์ข้อความพูดคุยในแชท</p>
+            <a href="https://meet.jit.si/KhunDearLiveRoom2026#config.startWithAudioMuted=true&config.startWithVideoMuted=true&interfaceConfig.DEFAULT_LANGUAGE=th" target="_blank" class="btn btn-watch">เข้าชมไลฟ์สด</a>
+        </div>
     </div>
 
-    <div class="guide">
-        💡 <b>วิธีใช้งาน:</b> พิมพ์ชื่อเล่นของคุณในช่องซ้าย แล้วกดปุ่มเข้าร่วม เพื่อเริ่มไลฟ์หรือรับชมได้ทันที!
+    <div class="footer-note">
+        💡 <b>วิธีแชร์:</b> ก๊อปปี้ลิงก์เว็บไซต์นี้ไปโพสต์ให้คนอื่นดูได้เลย เมื่อคนอื่นกด "เข้าชมไลฟ์สด" ระบบจะปิดกล้องเขาให้อัตโนมัติ ปลอดภัยและใช้งานง่ายครับ
     </div>
 
 </body>
