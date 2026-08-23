@@ -232,7 +232,7 @@
     </div>
 
     <script>
-        // เชื่อมต่อ Supabase ด้วย URL และ Publishable Key ที่ตั้งค่าไว้เรียบร้อย
+        // เชื่อมต่อ Supabase ด้วย URL และ Publishable Key
         const SUPABASE_URL = 'https://nwtjuwunuqpkcfbvyxzf.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_L3Bp6Hz7crnHTvcOF1ywOA_mZQ-I3Ne';
         
@@ -298,12 +298,14 @@
 
             document.getElementById('roomShareLink').value = viewerPageUrl;
             document.getElementById('shareSection').style.display = "block";
+            // แสดงปุ่มปิดห้อง
+            document.querySelector('.btn-end').style.display = "block";
 
             let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&quality=0`;
             window.open(pushUrl, '_blank');
         }
 
-        // ปิดห้องและลบออกจาก Supabase
+        // ปิดห้องและลบออกจาก Supabase ทันที พร้อมรีเซ็ตหน้าจอ
         async function endMyLive() {
             if(!activeRoomId) return;
 
@@ -319,6 +321,8 @@
 
             fetchRooms();
             document.getElementById('shareSection').style.display = "none";
+            document.getElementById('myRoomName').value = "";
+            activeRoomId = "";
             alert("ปิดห้องและลบออกจากรายการทุกเครื่องเรียบร้อยแล้วครับ!");
         }
 
@@ -341,7 +345,8 @@
             }
         }
 
-        function watchRoom(roomName) {
+        // ฟังก์ชันตรวจสอบห้องก่อนให้ผู้ชมเข้าดู (ถ้าห้องถูกปิดไปแล้ว จะแจ้งเตือนทันทีไม่ให้กดเข้าเก้อ)
+        async function watchRoom(roomName) {
             let name = document.getElementById('viewerNickName').value.trim();
             if(!name) {
                 alert("กรุณากรอก 'ชื่อเล่นของคุณ' ในช่องด้านบนก่อนคลิกดูครับ");
@@ -349,23 +354,45 @@
                 return;
             }
 
+            // เช็กในฐานข้อมูลว่าห้องนี้ยังอยู่จริงไหม
+            let { data } = await supabaseClient
+                .from('live_rooms')
+                .select('*')
+                .eq('name', roomName)
+                .single();
+
+            if (!data) {
+                alert("ห้องนี้ได้ปิดการไลฟ์ไปแล้วครับ!");
+                fetchRooms(); // อัปเดตรายชื่อห้องให้หายไปทันที
+                return;
+            }
+
             let url = `https://vdo.ninja/?room=${roomName}&chatbutton&label&displayName=${encodeURIComponent(name)}`;
             window.open(url, '_blank');
         }
 
-        // โหลดข้อมูลและเช็กลิงก์แชร์ตรงตอนเข้าเว็บ พร้อมตั้งเวลาดึงข้อมูลอัปเดตอัตโนมัติทุกๆ 3 วินาที
+        // โหลดข้อมูลและเช็กลิงก์แชร์ตรงตอนเข้าเว็บ พร้อมซิงค์ข้อมูลอัตโนมัติทุก 3 วินาที
         window.onload = function() {
             fetchRooms();
-            setInterval(fetchRooms, 3000); // ดึงข้อมูลห้องใหม่ทุก 3 วินาทีเพื่อให้เห็นผลแบบเรียลไทม์
+            setInterval(fetchRooms, 3000);
 
             const urlParams = new URLSearchParams(window.location.search);
             const targetRoom = urlParams.get('room');
             if (targetRoom) {
-                let viewerName = prompt("กรอกชื่อเล่นของคุณ (สำหรับแสดงในแชท):");
-                if (!viewerName) viewerName = "ผู้ชมทั่วไป";
+                // เช็กก่อนว่าลิงก์ที่กดเข้ามา ห้องยังเปิดอยู่ไหม
+                supabaseClient.from('live_rooms').select('*').eq('name', targetRoom).single().then(({data}) => {
+                    if (!data) {
+                        alert("ขออภัย! ห้องไลฟ์นี้ได้ปิดตัวลงแล้วครับ");
+                        window.location.href = window.location.href.split('?')[0];
+                        return;
+                    }
+                    
+                    let viewerName = prompt("กรอกชื่อเล่นของคุณ (สำหรับแสดงในแชท):");
+                    if (!viewerName) viewerName = "ผู้ชมทั่วไป";
 
-                let watchUrl = `https://vdo.ninja/?room=${targetRoom}&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
-                window.location.href = watchUrl;
+                    let watchUrl = `https://vdo.ninja/?room=${targetRoom}&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
+                    window.location.href = watchUrl;
+                });
             }
         }
     </script>
