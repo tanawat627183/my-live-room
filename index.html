@@ -176,7 +176,7 @@
         <div class="container" id="mainContainer">
             <div class="hero-text">
                 <h1>แพลตฟอร์มไลฟ์สดอิสระ</h1>
-                <p>สร้างห้องปุ๊บ วิดีโอเต็มจอ พร้อมแชทสดลอยสไตล์ TikTok</p>
+                <p>ตั้งชื่อห้องภาษาไทยได้ วิดีโอเต็มจอ พร้อมแชทสดลอยสไตล์ TikTok</p>
             </div>
 
             <div class="grid">
@@ -185,8 +185,8 @@
                     <div>
                         <h2>🔴 เปิดห้องไลฟ์ใหม่</h2>
                         <div class="input-group">
-                            <label>ตั้งชื่อห้อง (ภาษาอังกฤษหรือตัวเลขเท่านั้น)</label>
-                            <input type="text" id="myRoomName" placeholder="เช่น room1, saleroom">
+                            <label>ตั้งชื่อห้อง (พิมพ์ภาษาไทยได้ เช่น ขายปลากัด)</label>
+                            <input type="text" id="myRoomName" placeholder="เช่น ขายปลากัด, ห้องของฉัน">
                         </div>
                     </div>
                     <div>
@@ -276,19 +276,15 @@
         }
 
         async function startMyLive() {
-            let room = document.getElementById('myRoomName').value.trim();
-            if(!room) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
+            let roomInput = document.getElementById('myRoomName').value.trim();
+            if(!roomInput) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
             
-            let cleanRoom = room.replace(/[^a-zA-Z0-9_-]/g, '');
-            if(!cleanRoom) {
-                alert("กรุณาใช้ชื่อห้องเป็นภาษาอังกฤษหรือตัวเลข (เช่น room1, saleroom)");
-                return;
-            }
-            activeRoomId = cleanRoom;
+            let uniqueCode = 'room_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+            activeRoomId = uniqueCode;
 
             let { error } = await supabaseClient
                 .from('live_rooms')
-                .upsert({ name: cleanRoom, label: room });
+                .upsert({ name: uniqueCode, label: roomInput });
 
             if (error) {
                 alert("เกิดข้อผิดพลาดในการสร้างห้อง: " + error.message);
@@ -297,14 +293,14 @@
 
             fetchRooms();
 
-            let viewerPageUrl = window.location.href.split('?')[0] + "?room=" + cleanRoom;
+            let viewerPageUrl = window.location.href.split('?')[0] + "?room=" + uniqueCode;
             generatedUrl = viewerPageUrl;
 
             document.getElementById('roomShareLink').value = viewerPageUrl;
             document.getElementById('shareSection').style.display = "block";
             document.querySelector('.btn-end').style.display = "block";
 
-            loadLiveInterface(cleanRoom, "ผู้จัดไลฟ์", true);
+            loadLiveInterface(uniqueCode, roomInput, "ผู้จัดไลฟ์", true);
         }
 
         async function endMyLiveDirect(roomName) {
@@ -325,9 +321,8 @@
         }
 
         async function endMyLive() {
-            let targetRoom = activeRoomId || document.getElementById('myRoomName').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
-            if(!targetRoom) return;
-            endMyLiveDirect(targetRoom);
+            if(!activeRoomId) return;
+            endMyLiveDirect(activeRoomId);
         }
 
         function copyLink() {
@@ -369,11 +364,11 @@
                 return;
             }
 
-            loadLiveInterface(roomName, name, false);
+            loadLiveInterface(roomName, data.label, name, false);
         }
 
-        // หน้าจอแสดงผล: วิดีโอเต็มจอ 100% + กล่องแชทลอยโปร่งใสขนาดเล็ก (มุมขวาล่าง แบบมินิมอล)
-        function loadLiveInterface(roomName, userName, isHost) {
+        // หน้าจอแสดงผล: วิดีโอเต็มจอ 100% + แชทสไตล์ TikTok แท้ๆ (ลอยโปร่งใสฝั่งซ้าย ล่างพุ่งขึ้นบน ไม่อึดอัด)
+        function loadLiveInterface(roomName, roomLabel, userName, isHost) {
             const container = document.getElementById('mainContainer');
             
             let vdoUrl = isHost 
@@ -382,7 +377,7 @@
 
             container.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <h2 style="margin:0; font-size:16px; color:#fff;">🔴 ห้อง: ${roomName} ${isHost ? '(ผู้จัดไลฟ์)' : '(ผู้ชม)'}</h2>
+                    <h2 style="margin:0; font-size:16px; color:#fff;">🔴 ห้อง: ${roomLabel} ${isHost ? '(ผู้จัดไลฟ์)' : '(ผู้ชม)'}</h2>
                     ${isHost 
                         ? `<button onclick="endMyLiveDirect('${roomName}')" class="btn" style="width: auto; padding: 6px 14px; background: var(--accent-red); color: white; font-size: 12px;">🛑 สิ้นสุดการไลฟ์</button>`
                         : `<button onclick="window.location.href = window.location.href.split('?')[0]" class="btn" style="width: auto; padding: 6px 14px; background: #374151; font-size: 12px;">⬅️ ออกจากห้อง</button>`
@@ -393,19 +388,17 @@
                 <div style="position: relative; width: 100%; height: 78vh; background: #000; border-radius: 14px; overflow: hidden; border: 1px solid #1f2937;">
                     <iframe src="${vdoUrl}" style="width:100%; height:100%; border:none;" allow="autoplay; camera; microphone; fullscreen"></iframe>
 
-                    <!-- กล่องแชทลอยโปร่งใสขนาดเล็ก (มุมขวาล่าง ไม่บังจอ) -->
-                    <div style="position: absolute; bottom: 10px; right: 10px; width: 260px; height: 200px; background: rgba(11, 15, 25, 0.65); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-                        <div style="background: rgba(31, 41, 55, 0.7); padding: 6px 10px; font-size: 11px; font-weight: bold; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
-                            <span>💬 แชทสด</span>
-                            <span style="font-size: 10px; color: #10b981;">● ออนไลน์</span>
+                    <!-- TikTok Style Floating Chat Stream (ลอยมุมซ้ายล่าง โปร่งใส อ่านง่าย ไม่บังจอวิดีโอหลัก) -->
+                    <div style="position: absolute; bottom: 60px; left: 15px; width: 300px; height: 220px; pointer-events: none; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden;">
+                        <div id="roomChatMessages" style="display: flex; flex-direction: column; gap: 6px; overflow-y: auto; scroll-behavior: smooth; max-height: 100%; padding-right: 5px;">
+                            <div style="color: rgba(255,255,255,0.6); font-size: 12px; background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 6px; width: fit-content;">ยินดีต้อนรับสู่ห้องไลฟ์สด!</div>
                         </div>
-                        <div id="roomChatMessages" style="flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; scroll-behavior: smooth;">
-                            <div style="color: #9ca3af; text-align: center; font-size: 11px;">กำลังโหลดแชท...</div>
-                        </div>
-                        <div style="display: flex; padding: 6px; background: rgba(17, 24, 39, 0.8); border-top: 1px solid rgba(255,255,255,0.1); gap: 4px;">
-                            <input type="text" id="roomChatInput" placeholder="พิมพ์ข้อความ..." style="flex:1; padding: 6px 8px; background: #1f2937; border: 1px solid #374151; border-radius: 6px; color: white; font-size: 12px; outline: none;" onkeydown="if(event.key==='Enter') sendRoomChat('${roomName}', '${userName}')">
-                            <button onclick="sendRoomChat('${roomName}', '${userName}')" style="padding: 6px 10px; background: var(--accent-blue); color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;">ส่ง</button>
-                        </div>
+                    </div>
+
+                    <!-- ช่องพิมพ์ข้อความลอยอยู่ด้านล่างสุด (กดพิมพ์ได้ตลอดเวลา) -->
+                    <div style="position: absolute; bottom: 10px; left: 15px; right: 15px; display: flex; gap: 8px; background: rgba(11, 15, 25, 0.75); backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);">
+                        <input type="text" id="roomChatInput" placeholder="F พิมพ์ความคิดเห็น..." style="flex:1; padding: 8px 12px; background: rgba(31, 41, 55, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 13px; outline: none;" onkeydown="if(event.key==='Enter') sendRoomChat('${roomName}', '${userName}')">
+                        <button onclick="sendRoomChat('${roomName}', '${userName}')" style="padding: 8px 16px; background: var(--accent-blue); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer;">ส่ง</button>
                     </div>
                 </div>
             `;
@@ -426,13 +419,17 @@
             if (!msgBox) return;
 
             if (error || !data || data.length === 0) {
-                msgBox.innerHTML = `<div style="color: #9ca3af; text-align: center; font-size:11px;">ยังไม่มีข้อความ...</div>`;
                 return;
             }
 
             msgBox.innerHTML = "";
             data.forEach(c => {
-                msgBox.innerHTML += `<div style="background: rgba(31, 41, 55, 0.7); padding: 4px 8px; border-radius: 6px; word-break: break-word;"><span style="color: var(--accent-blue); font-weight: bold; margin-right: 4px;">${c.sender}:</span><span style="color: #fff;">${c.message}</span></div>`;
+                msgBox.innerHTML += `
+                    <div style="background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(4px); padding: 6px 10px; border-radius: 8px; width: fit-content; max-width: 100%; word-break: break-word; border-left: 3px solid var(--accent-blue);">
+                        <span style="color: #60a5fa; font-weight: bold; margin-right: 6px; font-size: 12px;">${c.sender}:</span>
+                        <span style="color: #ffffff; font-size: 13px;">${c.message}</span>
+                    </div>
+                `;
             });
             msgBox.scrollTop = msgBox.scrollHeight;
         }
@@ -469,7 +466,7 @@
                     let viewerName = prompt("กรอกชื่อเล่นของคุณ (สำหรับเข้าชมและแชท):");
                     if (!viewerName) viewerName = "ผู้ชม";
 
-                    loadLiveInterface(targetRoom, viewerName, false);
+                    loadLiveInterface(targetRoom, data.label, viewerName, false);
                 });
             }
         }
