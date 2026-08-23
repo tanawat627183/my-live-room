@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEAR LIVE - ศูนย์รวมห้องไลฟ์สดอิสระ</title>
-    <!-- โหลดไลบรารี Supabase จาก CDN เพื่อเชื่อมต่อฐานข้อมูลกลาง -->
+    <!-- โหลดไลบรารี Supabase จาก CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -232,17 +232,16 @@
     </div>
 
     <script>
-        // 1. ตั้งค่าเชื่อมต่อ Supabase ของคุณ (แทนที่ด้วยค่าของคุณถ้ามี หรือใช้โปรเจกต์กลาง)
-        const SUPABASE_URL = 'https://YOUR_SUPABASE_PROJECT.supabase.co';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        // เชื่อมต่อ Supabase ด้วย URL และ Publishable Key ที่ตั้งค่าไว้เรียบร้อย
+        const SUPABASE_URL = 'https://nwtjuwunuqpkcfbvyxzf.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_L3Bp6Hz7crnHTvcOF1ywOA_mZQ-I3Ne';
         
-        // เริ่มต้นใช้งาน Supabase Client
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let generatedUrl = "";
         let activeRoomId = "";
 
-        // 2. ฟังก์ชันดึงรายชื่อห้องทั้งหมดจาก Supabase
+        // ดึงรายชื่อห้องทั้งหมดจาก Supabase
         async function fetchRooms() {
             let { data, error } = await supabaseClient
                 .from('live_rooms')
@@ -276,14 +275,13 @@
             });
         }
 
-        // 3. ฟังก์ชันเปิดห้องไลฟ์และบันทึกขึ้น Supabase
+        // เปิดห้องไลฟ์และบันทึกขึ้น Supabase
         async function startMyLive() {
             let room = document.getElementById('myRoomName').value.trim();
             if(!room) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
             let cleanRoom = room.replace(/\s+/g, '-');
             activeRoomId = cleanRoom;
 
-            // บันทึกข้อมูลลงตาราง live_rooms ใน Supabase
             let { error } = await supabaseClient
                 .from('live_rooms')
                 .upsert({ name: cleanRoom, label: room });
@@ -293,22 +291,19 @@
                 return;
             }
 
-            // ดึงข้อมูลห้องอัปเดตทันที
             fetchRooms();
 
-            // สร้างลิงก์แชร์
             let viewerPageUrl = window.location.href.split('?')[0] + "?room=" + cleanRoom;
             generatedUrl = viewerPageUrl;
 
             document.getElementById('roomShareLink').value = viewerPageUrl;
             document.getElementById('shareSection').style.display = "block";
 
-            // เปิดหน้าจอไลฟ์ฝั่งเจ้าของห้อง
             let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&quality=0`;
             window.open(pushUrl, '_blank');
         }
 
-        // 4. ฟังก์ชันปิดห้องและลบออกจาก Supabase
+        // ปิดห้องและลบออกจาก Supabase
         async function endMyLive() {
             if(!activeRoomId) return;
 
@@ -358,9 +353,10 @@
             window.open(url, '_blank');
         }
 
-        // โหลดข้อมูลและเช็กลิงก์แชร์ตรงตอนเข้าเว็บ
+        // โหลดข้อมูลและเช็กลิงก์แชร์ตรงตอนเข้าเว็บ พร้อมตั้งเวลาดึงข้อมูลอัปเดตอัตโนมัติทุกๆ 3 วินาที
         window.onload = function() {
             fetchRooms();
+            setInterval(fetchRooms, 3000); // ดึงข้อมูลห้องใหม่ทุก 3 วินาทีเพื่อให้เห็นผลแบบเรียลไทม์
 
             const urlParams = new URLSearchParams(window.location.search);
             const targetRoom = urlParams.get('room');
