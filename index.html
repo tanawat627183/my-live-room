@@ -353,7 +353,7 @@
             }
         }
 
-        // ฝั่งคนดูคลิกเข้าชมห้อง (ใช้พารามิเตอร์ view ล็อกเป็นผู้ชม และส่งชื่อเล่นรอบเดียวจบ)
+        // ฝั่งคนดูคลิกเข้าชมห้อง (ใช้ room=...&solo เพื่อดึงภาพจากห้องมาแสดงทันทีโดยไม่ขอเปิดกล้อง)
         async function watchRoom(roomName) {
             let name = document.getElementById('viewerNickName').value.trim();
             if(!name) {
@@ -375,12 +375,11 @@
                 return;
             }
 
-            // ใช้พารามิเตอร์ view=ห้อง และ &clean&codec=vp9 เพื่อบังคับเป็นหน้าจอรับชมและแชทโดยไม่มีการเด้งเปิดกล้อง
-            let url = `https://vdo.ninja/?view=${roomName}&chatbutton&label&displayName=${encodeURIComponent(name)}`;
+            let url = `https://vdo.ninja/?room=${roomName}&solo&chatbutton&label&displayName=${encodeURIComponent(name)}`;
             window.open(url, '_blank');
         }
 
-        // โหลดข้อมูลอัตโนมัติและจัดการลิงก์ตรงสำหรับผู้ชม
+        // จัดการลิงก์ตรงสำหรับผู้ชม (แก้ปัญหาถามชื่อ 2 รอบ)
         window.onload = function() {
             fetchRooms();
             setInterval(fetchRooms, 3000);
@@ -395,11 +394,11 @@
                         return;
                     }
                     
-                    // สำหรับคนที่กดเข้ามาผ่านลิงก์แชร์โดยตรง ให้กรอกชื่อครั้งเดียวจบโดยไม่ต้องเปิดซ้ำซ้อน
+                    // กำหนดชื่อเล่นอัตโนมัติหรือถามแค่รอบเดียวโดยตรง
                     let viewerName = prompt("กรอกชื่อเล่นของคุณ (สำหรับแสดงในแชท):");
-                    if (!viewerName) viewerName = "ผู้ชมทั่วไป";
+                    if (!viewerName) viewerName = "ผู้ชม";
 
-                    let watchUrl = `https://vdo.ninja/?view=${targetRoom}&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
+                    let watchUrl = `https://vdo.ninja/?room=${targetRoom}&solo&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
                     window.location.href = watchUrl;
                 });
             }
