@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEAR LIVE - แพลตฟอร์มไลฟ์สดและแชทสด</title>
+    <title>DEAR LIVE - ศูนย์รวมห้องไลฟ์สดอิสระ</title>
+    <!-- โหลดไลบรารี Supabase จาก CDN เพื่อเชื่อมต่อฐานข้อมูลกลาง -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-color: #0b0f19;
             --card-bg: #111827;
             --accent-red: #f43f5e;
             --accent-blue: #3b82f6;
+            --accent-green: #10b981;
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
         }
@@ -113,8 +116,19 @@
         }
         .btn:hover { opacity: 0.9; }
         .btn-live { background-color: var(--accent-red); color: white; }
-        .btn-watch { background-color: var(--accent-blue); color: white; }
-        .btn-end { background-color: #374151; color: #f87171; margin-top: 10px; }
+        .btn-share { background-color: var(--accent-green); color: white; margin-top: 10px; display: none; }
+        .btn-copy { background-color: var(--accent-blue); color: white; margin-top: 10px; display: none; }
+        .btn-end { background-color: #374151; color: #f87171; margin-top: 10px; display: none; }
+
+        .share-box {
+            background: #1f2937;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            border: 1px solid #374151;
+            display: none;
+        }
+        .share-box p { margin: 0 0 8px 0; font-size: 13px; color: var(--text-muted); }
 
         .room-list-box {
             background: var(--card-bg);
@@ -134,7 +148,6 @@
         }
         .room-info h4 { margin: 0 0 4px 0; font-size: 16px; color: #fff; }
         .room-info span { font-size: 12px; color: var(--accent-red); font-weight: bold; }
-
         .empty-text {
             text-align: center;
             color: var(--text-muted);
@@ -161,8 +174,8 @@
 
         <div class="container">
             <div class="hero-text">
-                <h1>แพลตฟอร์มไลฟ์สดและแชทสดอิสระ</h1>
-                <p>สร้างห้องปุ๊บ ขึ้นลิสต์ให้คนดูคลิกดูและแชทได้ทันที</p>
+                <h1>แพลตฟอร์มไลฟ์สดอิสระ</h1>
+                <p>สร้างห้องปุ๊บ ซิงค์โชว์ทุกเครื่องทันที มีแชทสดในตัว</p>
             </div>
 
             <div class="grid">
@@ -177,59 +190,79 @@
                     </div>
                     <div>
                         <button onclick="startMyLive()" class="btn btn-live">เปิดห้องไลฟ์ทันที</button>
-                        <button onclick="endMyLive()" class="btn btn-end">🛑 ปิดห้อง / เลิกไลฟ์</button>
+                        
+                        <!-- กล่องแสดงลิงก์และปุ่มแชร์ -->
+                        <div id="shareSection" class="share-box">
+                            <p>ลิงก์ห้องไลฟ์ของคุณ:</p>
+                            <input type="text" id="roomShareLink" readonly style="background:#111827; font-size:13px; margin-bottom:8px;">
+                            <button onclick="copyLink()" class="btn btn-copy">📋 คัดลอกลิงก์ไลฟ์</button>
+                            <button onclick="shareLink()" class="btn btn-share">🔗 แชร์ลิงก์ (LINE / Facebook)</button>
+                            <button onclick="endMyLive()" class="btn btn-end">🛑 ปิดห้อง / ลบออกจากรายการ</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- ฝั่งผู้ชม -->
                 <div class="card" style="border-top: 4px solid var(--accent-blue);">
                     <div>
-                        <h2>👀 ข้อมูลสำหรับผู้ชม</h2>
+                        <h2>👀 สำหรับผู้ชม</h2>
                         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
-                            กรอกชื่อเล่นของคุณก่อน แล้วเลือกห้องด้านล่างเพื่อคลิกดูและพิมพ์แชทได้ทันที
+                            พิมพ์ชื่อเล่นของคุณ แล้วเลือกห้องที่กำลังไลฟ์สดด้านล่างเพื่อคลิกดูและแชทได้ทันที
                         </p>
                         <div class="input-group">
-                            <label>ชื่อเล่นของคุณ (สำหรับแสดงในแชท)</label>
+                            <label>ชื่อเล่นของคุณ (สำหรับพิมพ์แชท)</label>
                             <input type="text" id="viewerNickName" placeholder="เช่น น้องฟ้า, ลูกค้า">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- รายการห้องสดๆ -->
+            <!-- รายการห้องที่ซิงค์ทุกเครื่อง -->
             <div class="room-list-box">
-                <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:15px;">📺 รายการห้องที่กำลังไลฟ์อยู่</h2>
+                <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:15px;">📺 รายการห้องที่กำลังไลฟ์สด</h2>
                 <div class="room-list" id="roomContainer">
-                    <!-- รายการห้องจะแสดงตรงนี้อัตโนมัติ -->
+                    <div class="empty-text">กำลังโหลดข้อมูลห้อง...</div>
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>© 2026 DEAR LIVE PLATFORM • ไลฟ์สดอิสระ มีแชทสดในตัว</p>
+            <p>© 2026 DEAR LIVE PLATFORM • ซิงค์ข้อมูลทุกเครื่องแบบเรียลไทม์</p>
         </footer>
     </div>
 
     <script>
-        function getRooms() {
-            let saved = localStorage.getItem('dear_live_chat_rooms');
-            if (saved) {
-                return JSON.parse(saved);
-            }
-            return [];
-        }
+        // 1. ตั้งค่าเชื่อมต่อ Supabase ของคุณ (แทนที่ด้วยค่าของคุณถ้ามี หรือใช้โปรเจกต์กลาง)
+        const SUPABASE_URL = 'https://YOUR_SUPABASE_PROJECT.supabase.co';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        // เริ่มต้นใช้งาน Supabase Client
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function renderRooms() {
-            let rooms = getRooms();
+        let generatedUrl = "";
+        let activeRoomId = "";
+
+        // 2. ฟังก์ชันดึงรายชื่อห้องทั้งหมดจาก Supabase
+        async function fetchRooms() {
+            let { data, error } = await supabaseClient
+                .from('live_rooms')
+                .select('*')
+                .order('created_at', { ascending: false });
+
             let container = document.getElementById('roomContainer');
-            container.innerHTML = "";
+            if (error) {
+                console.error("Error fetching rooms:", error);
+                container.innerHTML = `<div class="empty-text">ไม่สามารถโหลดข้อมูลห้องได้</div>`;
+                return;
+            }
 
-            if (rooms.length === 0) {
+            container.innerHTML = "";
+            if (!data || data.length === 0) {
                 container.innerHTML = `<div class="empty-text">ยังไม่มีห้องไลฟ์ในขณะนี้ สามารถเปิดห้องใหม่ด้านบนได้เลยครับ</div>`;
                 return;
             }
 
-            rooms.forEach(r => {
+            data.forEach(r => {
                 let html = `
                     <div class="room-item">
                         <div class="room-info">
@@ -243,43 +276,74 @@
             });
         }
 
-        let currentActiveRoom = "";
-
-        function startMyLive() {
+        // 3. ฟังก์ชันเปิดห้องไลฟ์และบันทึกขึ้น Supabase
+        async function startMyLive() {
             let room = document.getElementById('myRoomName').value.trim();
             if(!room) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
             let cleanRoom = room.replace(/\s+/g, '-');
-            
-            currentActiveRoom = cleanRoom;
+            activeRoomId = cleanRoom;
 
-            let rooms = getRooms();
-            if(!rooms.some(r => r.name === cleanRoom)) {
-                rooms.unshift({ name: cleanRoom, label: room });
-                localStorage.setItem('dear_live_chat_rooms', JSON.stringify(rooms));
-            }
+            // บันทึกข้อมูลลงตาราง live_rooms ใน Supabase
+            let { error } = await supabaseClient
+                .from('live_rooms')
+                .upsert({ name: cleanRoom, label: room });
 
-            renderRooms();
-
-            // เปิดหน้าจอไลฟ์ฝั่งเจ้าของห้อง
-            let url = `https://vdo.ninja/?push=${cleanRoom}&quality=0`;
-            window.open(url, '_blank');
-        }
-
-        function endMyLive() {
-            let roomInput = document.getElementById('myRoomName').value.trim();
-            let targetRoom = roomInput ? roomInput.replace(/\s+/g, '-') : currentActiveRoom;
-
-            if(!targetRoom) {
-                alert("กรุณาใส่ชื่อห้องที่คุณเปิดไลฟ์อยู่ เพื่อกดปิดครับ");
+            if (error) {
+                alert("เกิดข้อผิดพลาดในการสร้างห้อง: " + error.message);
                 return;
             }
 
-            let rooms = getRooms();
-            let updatedRooms = rooms.filter(r => r.name !== targetRoom);
-            localStorage.setItem('dear_live_chat_rooms', JSON.stringify(updatedRooms));
+            // ดึงข้อมูลห้องอัปเดตทันที
+            fetchRooms();
 
-            renderRooms();
-            alert("ปิดห้องไลฟ์เรียบร้อยแล้ว ห้องถูกลบออกจากระบบและหายไปจากหน้าจอคนดูแล้วครับ!");
+            // สร้างลิงก์แชร์
+            let viewerPageUrl = window.location.href.split('?')[0] + "?room=" + cleanRoom;
+            generatedUrl = viewerPageUrl;
+
+            document.getElementById('roomShareLink').value = viewerPageUrl;
+            document.getElementById('shareSection').style.display = "block";
+
+            // เปิดหน้าจอไลฟ์ฝั่งเจ้าของห้อง
+            let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&quality=0`;
+            window.open(pushUrl, '_blank');
+        }
+
+        // 4. ฟังก์ชันปิดห้องและลบออกจาก Supabase
+        async function endMyLive() {
+            if(!activeRoomId) return;
+
+            let { error } = await supabaseClient
+                .from('live_rooms')
+                .delete()
+                .eq('name', activeRoomId);
+
+            if (error) {
+                alert("เกิดข้อผิดพลาดในการปิดห้อง");
+                return;
+            }
+
+            fetchRooms();
+            document.getElementById('shareSection').style.display = "none";
+            alert("ปิดห้องและลบออกจากรายการทุกเครื่องเรียบร้อยแล้วครับ!");
+        }
+
+        function copyLink() {
+            let copyText = document.getElementById('roomShareLink');
+            copyText.select();
+            navigator.clipboard.writeText(copyText.value);
+            alert("คัดลอกลิงก์สำเร็จ!");
+        }
+
+        function shareLink() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'DEAR LIVE - ห้องไลฟ์สด',
+                    text: 'มาร่วมชมไลฟ์สดและพิมพ์แชทพูดคุยกันได้เลย!',
+                    url: generatedUrl,
+                }).catch((error) => console.log('Sharing failed', error));
+            } else {
+                copyLink();
+            }
         }
 
         function watchRoom(roomName) {
@@ -290,13 +354,24 @@
                 return;
             }
 
-            // ลิงก์สำหรับผู้ชม พร้อมเปิดแชทสดและส่งชื่อเล่นเข้าไป
             let url = `https://vdo.ninja/?room=${roomName}&chatbutton&label&displayName=${encodeURIComponent(name)}`;
             window.open(url, '_blank');
         }
 
-        // โหลดเช็กลิสต์ห้องตอนเปิดเว็บ
-        renderRooms();
+        // โหลดข้อมูลและเช็กลิงก์แชร์ตรงตอนเข้าเว็บ
+        window.onload = function() {
+            fetchRooms();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetRoom = urlParams.get('room');
+            if (targetRoom) {
+                let viewerName = prompt("กรอกชื่อเล่นของคุณ (สำหรับแสดงในแชท):");
+                if (!viewerName) viewerName = "ผู้ชมทั่วไป";
+
+                let watchUrl = `https://vdo.ninja/?room=${targetRoom}&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
+                window.location.href = watchUrl;
+            }
+        }
     </script>
 
 </body>
