@@ -136,7 +136,6 @@
             border: 1px solid #1f2937;
             border-radius: 16px;
             padding: 25px;
-            margin-bottom: 25px;
         }
         .room-item {
             background: #1f2937;
@@ -146,7 +145,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            border: 1px solid #374151;
+            border: 1px solid #1f2937;
         }
         .room-info h4 { margin: 0 0 4px 0; font-size: 16px; color: #fff; }
         .room-info span { font-size: 12px; color: var(--accent-red); font-weight: bold; }
@@ -156,36 +155,6 @@
             font-size: 14px;
             padding: 20px 0;
         }
-
-        /* กล่องแชทสดเด้งโชว์หน้าจอหลัก */
-        .chat-feed-box {
-            background: var(--card-bg);
-            border: 1px solid #1f2937;
-            border-radius: 16px;
-            padding: 25px;
-        }
-        .chat-messages {
-            background: #1f2937;
-            border: 1px solid #374151;
-            border-radius: 10px;
-            height: 200px;
-            overflow-y: auto;
-            padding: 12px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .chat-msg {
-            background: #111827;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            border-left: 3px solid var(--accent-blue);
-            color: #fff;
-        }
-        .chat-msg span { font-weight: bold; color: var(--accent-blue); margin-right: 8px; }
 
         footer {
             text-align: center;
@@ -207,7 +176,7 @@
         <div class="container">
             <div class="hero-text">
                 <h1>แพลตฟอร์มไลฟ์สดอิสระ</h1>
-                <p>สร้างห้องปุ๊บ ซิงค์โชว์ทุกเครื่องทันที มีระบบแชทสดหน้าจอหลัก</p>
+                <p>สร้างห้องปุ๊บ ซิงค์โชว์ทุกเครื่องทันที แชทแยกอิสระตามห้อง</p>
             </div>
 
             <div class="grid">
@@ -242,7 +211,7 @@
                             พิมพ์ชื่อเล่นของคุณ แล้วเลือกห้องที่กำลังไลฟ์สดด้านล่างเพื่อคลิกดูและแชทได้ทันที
                         </p>
                         <div class="input-group">
-                            <label>ชื่อเล่นของคุณ (สำหรับพิมพ์แชท)</label>
+                            <label>ชื่อเล่นของคุณ (สำหรับแสดงในห้องแชท)</label>
                             <input type="text" id="viewerNickName" placeholder="เช่น น้องฟ้า, ลูกค้า">
                         </div>
                     </div>
@@ -257,18 +226,6 @@
                 </div>
                 <div class="room-list" id="roomContainer">
                     <div class="empty-text">กำลังโหลดข้อมูลห้อง...</div>
-                </div>
-            </div>
-
-            <!-- กล่องแชทสดเด้งโชว์หน้าจอหลัก -->
-            <div class="chat-feed-box">
-                <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:12px;">💬 แชทสดหน้าจอหลัก (พิมพ์คุยกันตรงนี้ได้เลย)</h2>
-                <div class="chat-messages" id="chatContainer">
-                    <div class="empty-text" style="padding: 10px 0;">ยังไม่มีข้อความแชทในขณะนี้...</div>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="chatInput" placeholder="พิมพ์ข้อความพูดคุยที่นี่ แล้วกดส่ง..." style="flex:1; padding: 12px; background: #1f2937; border: 1px solid #374151; border-radius: 10px; color: white; outline: none;" onkeydown="checkEnter(event)">
-                    <button onclick="sendChatMessage()" class="btn" style="width: 120px; padding: 12px; background: var(--accent-blue); color: white; cursor: pointer;">ส่งข้อความ</button>
                 </div>
             </div>
         </div>
@@ -310,7 +267,7 @@
                     <div class="room-item">
                         <div class="room-info">
                             <h4>ห้อง: ${r.label}</h4>
-                            <span>● กำลังออนแอร์ (ภาพเสียงชัดเจน)</span>
+                            <span>● กำลังออนแอร์ (ภาพเสียงพร้อมแชทแยกห้อง)</span>
                         </div>
                         <button onclick="watchRoom('${r.name}')" class="btn btn-watch" style="width: auto; padding: 10px 20px;">คลิกดูและแชท</button>
                     </div>
@@ -319,65 +276,14 @@
             });
         }
 
-        async function fetchChat() {
-            let { data, error } = await supabaseClient
-                .from('live_chats')
-                .select('*')
-                .order('created_at', { ascending: true })
-                .limit(50);
-
-            let chatContainer = document.getElementById('chatContainer');
-            if (error || !data || data.length === 0) {
-                chatContainer.innerHTML = `<div class="empty-text" style="padding: 10px 0;">ยังไม่มีข้อความแชทในขณะนี้...</div>`;
-                return;
-            }
-
-            chatContainer.innerHTML = "";
-            data.forEach(c => {
-                chatContainer.innerHTML += `<div class="chat-msg"><span>${c.sender}:</span> ${c.message}</div>`;
-            });
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        async function sendChatMessage() {
-            let viewerInput = document.getElementById('viewerNickName').value.trim();
-            let roomInput = document.getElementById('myRoomName').value.trim();
-            let sender = viewerInput || roomInput || "ผู้ชมทั่วไป";
-            
-            let messageInput = document.getElementById('chatInput');
-            let message = messageInput.value.trim();
-
-            if (!message) {
-                alert("กรุณาพิมพ์ข้อความก่อนส่งครับ");
-                return;
-            }
-
-            let { error } = await supabaseClient
-                .from('live_chats')
-                .insert([{ sender: sender, message: message }]);
-
-            if (error) {
-                alert("ส่งข้อความไม่สำเร็จ: " + error.message);
-                return;
-            }
-
-            messageInput.value = "";
-            fetchChat();
-        }
-
-        function checkEnter(event) {
-            if (event.key === 'Enter') {
-                sendChatMessage();
-            }
-        }
-
+        // เปิดห้องไลฟ์ (ฝั่งคนไลฟ์เปิดหน้าจอควบคุมและแชทประจำห้อง)
         async function startMyLive() {
             let room = document.getElementById('myRoomName').value.trim();
             if(!room) { alert("กรุณาตั้งชื่อห้องก่อนครับ"); return; }
             
             let cleanRoom = room.replace(/[^a-zA-Z0-9_-]/g, '');
             if(!cleanRoom) {
-                alert("กรุณาใช้ชื่อห้องเป็นภาษาอังกฤษหรือตัวเลข (เช่น room1, live2026)");
+                alert("กรุณาใช้ชื่อห้องเป็นภาษาอังกฤษหรือตัวเลข (เช่น room1, saleroom)");
                 return;
             }
             activeRoomId = cleanRoom;
@@ -400,8 +306,8 @@
             document.getElementById('shareSection').style.display = "block";
             document.querySelector('.btn-end').style.display = "block";
 
-            // เพิ่มพารามิเตอร์ &chatbutton และ &chat เพื่อให้ฝั่งคนไลฟ์เปิดแชทรับข้อความได้
-            let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&room=${cleanRoom}&quality=0&webcam&chatbutton&chat`;
+            // เปิดลิงก์ส่งสัญญาณภาพและเปิดแชทประจำห้องของ VDO.Ninja (&chat &chatbutton)
+            let pushUrl = `https://vdo.ninja/?push=${cleanRoom}&room=${cleanRoom}&quality=0&webcam&chat&chatbutton`;
             window.open(pushUrl, '_blank');
         }
 
@@ -450,6 +356,7 @@
             }
         }
 
+        // ฝั่งคนดูคลิกเข้าชมห้อง (เปิดหน้าจอรับชมพร้อมแถบแชทแยกเฉพาะห้องนั้นๆ ทันที)
         async function watchRoom(roomName) {
             let name = document.getElementById('viewerNickName').value.trim();
             if(!name) {
@@ -470,18 +377,14 @@
                 return;
             }
 
-            // เพิ่มพารามิเตอร์ &chatbutton, &chat และ &label เข้าไปในลิงก์ผู้ชม เพื่อเปิดปุ่มและช่องพิมพ์แชทในหน้าจอ VDO.Ninja ทันที
-            let url = `https://vdo.ninja/?room=${roomName}&solo&autostart&chatbutton&chat&label&displayName=${encodeURIComponent(name)}`;
+            // เปิดหน้าจอรับชมพร้อมแชทประจำห้อง (Room ID เดียวกัน แชทจะอยู่เฉพาะในห้องนั้นไม่ปะปนกับห้องอื่น)
+            let url = `https://vdo.ninja/?room=${roomName}&solo&autostart&chat&chatbutton&label&displayName=${encodeURIComponent(name)}`;
             window.open(url, '_blank');
         }
 
         window.onload = function() {
             fetchRooms();
-            fetchChat();
-            setInterval(() => {
-                fetchRooms();
-                fetchChat();
-            }, 3000);
+            setInterval(fetchRooms, 3000);
 
             const urlParams = new URLSearchParams(window.location.search);
             const targetRoom = urlParams.get('room');
@@ -496,7 +399,7 @@
                     let viewerName = prompt("กรอกชื่อเล่นของคุณ (สำหรับเข้าชมและแชท):");
                     if (!viewerName) viewerName = "ผู้ชม";
 
-                    let watchUrl = `https://vdo.ninja/?room=${targetRoom}&solo&autostart&chatbutton&chat&label&displayName=${encodeURIComponent(viewerName)}`;
+                    let watchUrl = `https://vdo.ninja/?room=${targetRoom}&solo&autostart&chat&chatbutton&label&displayName=${encodeURIComponent(viewerName)}`;
                     window.location.href = watchUrl;
                 });
             }
