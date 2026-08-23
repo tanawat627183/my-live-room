@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEAR LIVE - แพลตฟอร์มไลฟ์สดอิสระ</title>
+    <title>DEAR LIVE - ดูไลฟ์สดทันที</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -112,7 +112,6 @@
         .btn-live { background-color: var(--accent-red); color: white; }
         .btn-watch { background-color: var(--accent-blue); color: white; }
 
-        /* รายการห้องสำหรับผู้ชมเลือกคลิกดู */
         .room-list-box {
             background: var(--card-bg);
             border: 1px solid #1f2937;
@@ -176,7 +175,6 @@
 </head>
 <body>
 
-    <!-- หน้าแรกของเว็บ -->
     <div id="homeView" style="display: flex; flex-direction: column; min-height: 100vh;">
         <nav>
             <div class="logo">DEAR<span>LIVE</span></div>
@@ -185,11 +183,11 @@
         <div class="container">
             <div class="hero-text">
                 <h1>แพลตฟอร์มไลฟ์สดอิสระ</h1>
-                <p>เปิดห้องไลฟ์ของคุณเอง หรือเลือกคลิกเข้าชมห้องที่มีอยู่ได้ทันที ไม่ต้องล็อกอิน</p>
+                <p>กดคลิกเดียวดูได้ทันที ไม่มีขั้นตอนยุ่งยาก</p>
             </div>
 
             <div class="grid">
-                <!-- ฝั่งคนอยากเปิดห้องไลฟ์ -->
+                <!-- ฝั่งเปิดห้องไลฟ์ -->
                 <div class="card" style="border-top: 4px solid var(--accent-red);">
                     <div>
                         <h2>🔴 เปิดห้องไลฟ์ใหม่</h2>
@@ -199,64 +197,61 @@
                         </div>
                         <div class="input-group">
                             <label>ชื่อของคุณ</label>
-                            <input type="text" id="myNickName" placeholder="ชื่อผู้จัดไลฟ์">
+                            <input type="text" id="myNickName" value="คุณเดียร์" placeholder="ชื่อผู้จัดไลฟ์">
                         </div>
                     </div>
                     <button onclick="startMyLive()" class="btn btn-live">เริ่มเปิดกล้องไลฟ์</button>
                 </div>
 
-                <!-- ฝั่งคนดู (ใส่ชื่อเล่นเพื่อเตรียมตัวเข้าชม) -->
+                <!-- ฝั่งผู้ชม -->
                 <div class="card" style="border-top: 4px solid var(--accent-blue);">
                     <div>
-                        <h2>👀 ข้อมูลสำหรับผู้ชม</h2>
+                        <h2>👀 ชื่อเล่นของคุณ (สำหรับพิมพ์แชท)</h2>
                         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
-                            กรอกชื่อเล่นของคุณไว้ก่อน แล้วเลื่อนลงไปเลือกห้องด้านล่างเพื่อคลิกดูได้เลยทันที
+                            ใส่ชื่อเล่นแล้วเลือกห้องด้านล่างเพื่อ "ดูได้ทันที"
                         </p>
                         <div class="input-group">
-                            <label>ชื่อเล่นของคุณ (สำหรับพิมพ์แชท)</label>
-                            <input type="text" id="viewerNickName" placeholder="ชื่อเล่นของคุณ">
+                            <label>ชื่อเล่นของคุณ</label>
+                            <input type="text" id="viewerNickName" placeholder="เช่น น้องฟ้า, ลูกค้า">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- โซนรายการห้องให้คนดูเลือกคลิกได้ทันที (ไม่ต้องพิมพ์ชื่อห้องเอง) -->
+            <!-- รายการห้องให้เลือกกดดูทันที -->
             <div class="room-list-box">
                 <h2 style="margin-top:0; font-size:18px; color:#fff; margin-bottom:15px;">📺 เลือกห้องที่ต้องการเข้าชม</h2>
                 
                 <div class="room-list">
-                    <!-- ห้องที่ 1 -->
                     <div class="room-item">
                         <div class="room-info">
                             <h4>ห้องหลัก: ห้องพูดคุยทั่วไป (General-Room)</h4>
                             <span>● เปิดใช้งานอยู่</span>
                         </div>
-                        <button onclick="watchRoom('General-Room')" class="btn btn-watch" style="width: auto; padding: 8px 16px;">คลิกเข้าชม</button>
+                        <button onclick="watchRoom('General-Room')" class="btn btn-watch" style="width: auto; padding: 8px 16px;">คลิกดูเลย</button>
                     </div>
 
-                    <!-- ห้องที่ 2 -->
                     <div class="room-item">
                         <div class="room-info">
                             <h4>ห้องที่ 2: ตลาดนัดออนไลน์ (Market-Room)</h4>
                             <span>● เปิดใช้งานอยู่</span>
                         </div>
-                        <button onclick="watchRoom('Market-Room')" class="btn btn-watch" style="width: auto; padding: 8px 16px;">คลิกเข้าชม</button>
+                        <button onclick="watchRoom('Market-Room')" class="btn btn-watch" style="width: auto; padding: 8px 16px;">คลิกดูเลย</button>
                     </div>
 
-                    <!-- ห้องที่ 3 -->
                     <div class="room-item">
                         <div class="room-info">
                             <h4>ห้องที่ 3: ห้องส่วนตัว / ปาร์ตี้ (Party-Room)</h4>
                             <span>● เปิดใช้งานอยู่</span>
                         </div>
-                        <button onclick="watchRoom('Party-Room')" class="btn btn-watch" style="width: auto; padding: 8px 16px;">คลิกเข้าชม</button>
+                        <button onclick="watchRoom('Party-Room')" class="btn btn-watch" style="width: auto; padding: 8px 16px;">คลิกดูเลย</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>© 2026 DEAR LIVE PLATFORM • อิสระ ใช้งานง่าย ไม่ต้องล็อกอิน</p>
+            <p>© 2026 DEAR LIVE PLATFORM • ดูคือดูเลย ไม่ต้องโหลดแอป ไม่ต้องกดซ้ำซ้อน</p>
         </footer>
     </div>
 
@@ -279,7 +274,9 @@
             if(!name) { alert("กรุณาใส่ชื่อของคุณก่อนครับ"); return; }
 
             let cleanRoom = room.replace(/\s+/g, '-');
-            let url = `https://meet.jit.si/${cleanRoom}#userInfo.displayName="${encodeURIComponent(name)}"&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.DEFAULT_LANGUAGE=th&interfaceConfig.TOOLBAR_BUTTONS=['microphone','camera','chat','desktop','raisehand','tileview','fullscreen']`;
+            
+            // เพิ่มคำสั่งพิเศษ ข้ามหน้าจอยุ่งยากทั้งหมด พุ่งเข้าห้องรันกล้องทันที
+            let url = `https://meet.jit.si/${cleanRoom}#userInfo.displayName="${encodeURIComponent(name)}"&config.startWithAudioMuted=false&config.startWithVideoMuted=false&config.prejoinPageEnabled=false&interfaceConfig.DEFAULT_LANGUAGE=th&interfaceConfig.TOOLBAR_BUTTONS=['microphone','camera','chat','desktop','raisehand','tileview','fullscreen']`;
 
             openScreen(cleanRoom, url);
         }
@@ -287,12 +284,13 @@
         function watchRoom(roomName) {
             let name = document.getElementById('viewerNickName').value.trim();
             if(!name) {
-                alert("กรุณากรอก 'ชื่อเล่นของคุณ' ในช่องด้านบนก่อนคลิกเข้าชมครับ");
+                alert("กรุณากรอก 'ชื่อเล่นของคุณ' ก่อนคลิกดูครับ");
                 document.getElementById('viewerNickName').focus();
                 return;
             }
 
-            let url = `https://meet.jit.si/${roomName}#userInfo.displayName="${encodeURIComponent(name)}"&config.startWithAudioMuted=true&config.startWithVideoMuted=true&interfaceConfig.DEFAULT_LANGUAGE=th&interfaceConfig.TOOLBAR_BUTTONS=['chat','raisehand','tileview','fullscreen']`;
+            // เพิ่มคำสั่งพิเศษ ข้ามหน้าจอถามซ้ำซ้อน ทะลุเข้าหน้าดูไลฟ์ทันที
+            let url = `https://meet.jit.si/${roomName}#userInfo.displayName="${encodeURIComponent(name)}"&config.startWithAudioMuted=true&config.startWithVideoMuted=true&config.prejoinPageEnabled=false&interfaceConfig.DEFAULT_LANGUAGE=th&interfaceConfig.TOOLBAR_BUTTONS=['chat','raisehand','tileview','fullscreen']`;
 
             openScreen(roomName, url);
         }
